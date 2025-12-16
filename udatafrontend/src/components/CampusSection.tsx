@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, MapPin } from 'lucide-react';
 import { Campus } from '../App';
 import { Modal } from './Modal';
+import { Navigate, useNavigate } from 'react-router';
 
 interface CampusSectionProps {
   campuses: Campus[];
@@ -11,6 +12,7 @@ interface CampusSectionProps {
 }
 
 export function CampusSection({ campuses, onAdd, onUpdate, onDelete }: CampusSectionProps) {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCampus, setEditingCampus] = useState<Campus | null>(null);
   const [formData, setFormData] = useState({ name: '', location: '' });
@@ -41,6 +43,10 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete }: CampusSec
     if (confirm('Are you sure you want to delete this campus? All associated buildings and rooms will also be deleted.')) {
       onDelete(id);
     }
+  };
+  const handleCampusClick = (campus: Campus) => {
+    console.log("Campus clicked:", campus);
+    navigate(`/campus/`+campus.id);
   };
 
   return (
@@ -83,8 +89,8 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete }: CampusSec
             ) : (
               campuses.map(campus => (
                 <tr key={campus.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 text-gray-900">{campus.name}</td>
-                  <td className="py-3 px-4 text-gray-600">{campus.location}</td>
+                  <td className="py-3 px-4 text-gray-900" onClick={() => handleCampusClick(campus)}>{campus.name}</td>
+                  <td className="py-3 px-4 text-gray-600" onClick={() => handleCampusClick(campus)}>{campus.location}</td>
                   <td className="py-3 px-4">
                     <div className="flex items-center justify-end gap-2">
                       <button

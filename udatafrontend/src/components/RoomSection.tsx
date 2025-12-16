@@ -5,14 +5,14 @@ import { Modal } from './Modal';
 
 interface RoomSectionProps {
   rooms: Room[];
-  buildings: Building[];
-  campuses: Campus[];
+  building: Building;
+  campus: Campus;
   onAdd: (room: Omit<Room, 'id'>) => void;
   onUpdate: (id: string, room: Omit<Room, 'id'>) => void;
   onDelete: (id: string) => void;
 }
 
-export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDelete }: RoomSectionProps) {
+export function RoomSection({ rooms, building, campus, onAdd, onUpdate, onDelete }: RoomSectionProps) {
   const [selectedCampusId, setSelectedCampusId] = useState<string>('');
   const [selectedBuildingId, setSelectedBuildingId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,9 +25,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
     buildingId: '',
   });
 
-  const filteredBuildings = selectedCampusId
-    ? buildings.filter(b => b.campusId === selectedCampusId)
-    : buildings;
+  const filteredBuildings = building;
 
   const filteredRooms = selectedBuildingId
     ? rooms.filter(r => r.buildingId === selectedBuildingId)
@@ -39,7 +37,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
       capacity: 0,
       roomType: '',
       description: '',
-      buildingId: selectedBuildingId || buildings[0]?.id || '',
+      buildingId: building.id || '',
     });
     setEditingRoom(null);
     setIsModalOpen(true);
@@ -73,13 +71,11 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
     }
   };
 
-  const handleCampusChange = (campusId: string) => {
-    setSelectedCampusId(campusId);
-    setSelectedBuildingId('');
-  };
-
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className='flex item-center font-bold text-gray-900 text-l'>
+        <label>{campus.name} {building.name} Building</label>
+      </div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -92,7 +88,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
         </div>
         <button
           onClick={openAddModal}
-          disabled={buildings.length === 0}
+          disabled={building == null}
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4" />
@@ -100,45 +96,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label htmlFor="campus-filter-room" className="block text-sm text-gray-700 mb-2">
-            Filter by Campus
-          </label>
-          <select
-            id="campus-filter-room"
-            value={selectedCampusId}
-            onChange={e => handleCampusChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="">All Campuses</option>
-            {campuses.map(campus => (
-              <option key={campus.id} value={campus.id}>
-                {campus.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="building-filter" className="block text-sm text-gray-700 mb-2">
-            Filter by Building
-          </label>
-          <select
-            id="building-filter"
-            value={selectedBuildingId}
-            onChange={e => setSelectedBuildingId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            disabled={filteredBuildings.length === 0}
-          >
-            <option value="">All Buildings</option>
-            {filteredBuildings.map(building => (
-              <option key={building.id} value={building.id}>
-                {building.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -153,7 +111,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             </tr>
           </thead>
           <tbody>
-            {buildings.length === 0 ? (
+            {building == null ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-gray-500">
                   Please add buildings first before adding rooms.
@@ -167,7 +125,6 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
               </tr>
             ) : (
               filteredRooms.map(room => {
-                const building = buildings.find(b => b.id === room.buildingId);
                 return (
                   <tr key={room.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4 text-gray-900">{room.roomNumber}</td>
@@ -211,23 +168,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             <label htmlFor="room-building" className="block text-sm text-gray-700 mb-1">
               Building
             </label>
-            <select
-              id="room-building"
-              value={formData.buildingId}
-              onChange={e => setFormData({ ...formData, buildingId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              required
-            >
-              <option value="">Select a building</option>
-              {buildings.map(building => {
-                const campus = campuses.find(c => c.id === building.campusId);
-                return (
-                  <option key={building.id} value={building.id}>
-                    {building.name} ({campus?.name})
-                  </option>
-                );
-              })}
-            </select>
+            <div> {building.name} </div>
           </div>
           <div>
             <label htmlFor="room-number" className="block text-sm text-gray-700 mb-1">

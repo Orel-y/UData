@@ -189,3 +189,6 @@
 html {
   font-size: var(--font-size);
 }
+.cursor-pointer{
+  cursor: pointer;
+}

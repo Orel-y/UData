@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, Building } from 'lucide-react';
 import { Building as BuildingType, Campus } from '../App';
 import { Modal } from './Modal';
+import { useNavigate, useParams } from 'react-router';
 
 interface BuildingSectionProps {
   buildings: BuildingType[];
@@ -12,17 +13,19 @@ interface BuildingSectionProps {
 }
 
 export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete }: BuildingSectionProps) {
-  const [selectedCampusId, setSelectedCampusId] = useState<string>('');
+  const navigate = useNavigate();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState<BuildingType | null>(null);
   const [formData, setFormData] = useState({ name: '', floorCount: 1, campusId: '' });
 
-  const filteredBuildings = selectedCampusId
-    ? buildings.filter(b => b.campusId === selectedCampusId)
-    : buildings;
+  const {campusId} = useParams();
+  const campus = campuses.find(c => c.id === campusId);
+
+  const filteredBuildings = buildings.filter(b => b.campusId === campusId);
 
   const openAddModal = () => {
-    setFormData({ name: '', floorCount: 1, campusId: selectedCampusId || campuses[0]?.id || '' });
+    setFormData({ name: '', floorCount: 1, campusId: campusId || ''});
     setEditingBuilding(null);
     setIsModalOpen(true);
   };
@@ -49,6 +52,10 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
     }
   };
 
+  const handleBuildingClick = (building: BuildingType)=>{
+    navigate(`building/${building.id}`);
+  }
+
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -72,22 +79,9 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
       </div>
 
       <div className="mb-4">
-        <label htmlFor="campus-filter" className="block text-sm text-gray-700 mb-2">
-          Filter by Campus
+        <label htmlFor="campus-filter" className="block text-lm text-gray-700 font-bold mb-2">
+          Buildings of {campus?.name}
         </label>
-        <select
-          id="campus-filter"
-          value={selectedCampusId}
-          onChange={e => setSelectedCampusId(e.target.value)}
-          className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          <option value="">All Campuses</option>
-          {campuses.map(campus => (
-            <option key={campus.id} value={campus.id}>
-              {campus.name}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div className="overflow-x-auto">
@@ -115,12 +109,11 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
               </tr>
             ) : (
               filteredBuildings.map(building => {
-                const campus = campuses.find(c => c.id === building.campusId);
                 return (
                   <tr key={building.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-900">{building.name}</td>
-                    <td className="py-3 px-4 text-gray-600">{campus?.name || 'Unknown'}</td>
-                    <td className="py-3 px-4 text-gray-600">{building.floorCount}</td>
+                    <td className="py-3 px-4 text-gray-900" onClick={()=>handleBuildingClick(building)}>{building.name}</td>
+                    <td className="py-3 px-4 text-gray-600" onClick={()=>handleBuildingClick(building)}>{campus?.name || 'Unknown'}</td>
+                    <td className="py-3 px-4 text-gray-600" onClick={()=>handleBuildingClick(building)}>{building.floorCount}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -157,20 +150,7 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
             <label htmlFor="building-campus" className="block text-sm text-gray-700 mb-1">
               Campus
             </label>
-            <select
-              id="building-campus"
-              value={formData.campusId}
-              onChange={e => setFormData({ ...formData, campusId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            >
-              <option value="">Select a campus</option>
-              {campuses.map(campus => (
-                <option key={campus.id} value={campus.id}>
-                  {campus.name}
-                </option>
-              ))}
-            </select>
+            <div className="w-100 px-3 py-2 border-b border-gray-300">{campus?.name}</div>
           </div>
           <div>
             <label htmlFor="building-name" className="block text-sm text-gray-700 mb-1">
