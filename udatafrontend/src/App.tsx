@@ -9,21 +9,21 @@ import RoomPage from './pages/RoomPage';
 
 /* Types */
 export interface Campus {
-  id: string;
+  id: number;
   name: string;
   location: string;
 }
 
 export interface Building {
-  id: string;
-  campusId: string;
+  id: number;
+  campusId: number;
   name: string;
   floorCount: number;
 }
 
 export interface Room {
-  id: string;
-  buildingId: string;
+  id: number;
+  buildingId: number;
   roomNumber: string;
   capacity: number;
   roomType: string;
@@ -31,35 +31,30 @@ export interface Room {
 }
 
 export default function App() {
-  const [campuses, setCampuses] = useState<Campus[]>([
-    { id: '1', name: 'Main Campus', location: 'Hawassa, Megbiya' },
-    { id: '2', name: 'Agri Campus', location: 'Hawassa, Piyasa' },
-  ]);
+  const [campuses, setCampuses] = useState<Campus[]>([]);
 
-  const [buildings, setBuildings] = useState<Building[]>([
-    { id: '1', campusId: '1', name: 'Arch', floorCount: 2 },
-    { id: '2', campusId: '1', name: 'Memariya', floorCount: 4 },
-    { id: '3', campusId: '2', name: 'Agri Building', floorCount: 3 },
-  ]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
 
-  const [rooms, setRooms] = useState<Room[]>([
-    { id: '1', buildingId: '1', roomNumber: '101', capacity: 30, roomType: 'Lecture Hall', description: 'Standard classroom with projector' },
-    { id: '2', buildingId: '1', roomNumber: '205', capacity: 50, roomType: 'Lecture Hall', description: 'Large auditorium-style room' },
-    { id: '3', buildingId: '2', roomNumber: '301', capacity: 20, roomType: 'Laboratory', description: 'Computer lab with 20 workstations' },
-  ]);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
   /* Handlers (CRUD) */
-  const addCampus = (c: Omit<Campus, 'id'>) => setCampuses([...campuses, { ...c, id: Date.now().toString() }]);
-  const updateCampus = (id: string, c: Omit<Campus, 'id'>) => setCampuses(campuses.map(ca => (ca.id === id ? { ...c, id } : ca)));
-  const deleteCampus = (id: string) => { setCampuses(campuses.filter(c => c.id !== id)); setBuildings(buildings.filter(b => b.campusId !== id)); };
+  const addCampus = (c: Omit<Campus, 'id'>) => setCampuses([...campuses, { ...c, id: Date.now() }]);
+  const updateCampus = (id: number, c: Omit<Campus, 'id'>) => setCampuses(campuses.map(ca => (ca.id === id ? { ...c, id } : ca)));
+  const deleteCampus = (id: number) => {
+    setCampuses(campuses.filter(c => c.id !== id));
+    setBuildings(buildings.filter(b => b.campusId !== id));
+  };
 
-  const addBuilding = (b: Omit<Building, 'id'>) => setBuildings([...buildings, { ...b, id: Date.now().toString() }]);
-  const updateBuilding = (id: string, b: Omit<Building, 'id'>) => setBuildings(buildings.map(bu => (bu.id === id ? { ...b, id } : bu)));
-  const deleteBuilding = (id: string) => { setBuildings(buildings.filter(b => b.id !== id)); setRooms(rooms.filter(r => r.buildingId !== id)); };
+  const addBuilding = (b: Omit<Building, 'id'>) => setBuildings([...buildings, { ...b, id: Date.now() }]);
+  const updateBuilding = (id: number, b: Omit<Building, 'id'>) => setBuildings(buildings.map(bu => (bu.id === id ? { ...b, id } : bu)));
+  const deleteBuilding = (id: number) => {
+    setBuildings(buildings.filter(b => b.id !== id));
+    setRooms(rooms.filter(r => r.buildingId !== id));
+  };
 
-  const addRoom = (r: Omit<Room, 'id'>) => setRooms([...rooms, { ...r, id: Date.now().toString() }]);
-  const updateRoom = (id: string, r: Omit<Room, 'id'>) => setRooms(rooms.map(ro => (ro.id === id ? { ...r, id } : ro)));
-  const deleteRoom = (id: string) => setRooms(rooms.filter(r => r.id !== id));
+  const addRoom = (r: Omit<Room, 'id'>) => setRooms([...rooms, { ...r, id: Date.now() }]);
+  const updateRoom = (id: number, r: Omit<Room, 'id'>) => setRooms(rooms.map(ro => (ro.id === id ? { ...r, id } : ro)));
+  const deleteRoom = (id: number) => setRooms(rooms.filter(r => r.id !== id));
 
   return (
     <BrowserRouter>
@@ -79,9 +74,42 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/campuses" replace />} />
 
-            <Route path="/campuses" element={<CampusPage campuses={campuses} onAdd={addCampus} onUpdate={updateCampus} onDelete={deleteCampus} />} />
-            <Route path="/campuses/:campusId/buildings" element={<BuildingPage buildings={buildings} campuses={campuses} onAdd={addBuilding} onUpdate={updateBuilding} onDelete={deleteBuilding} />} />
-            <Route path="/buildings/:buildingId/rooms" element={<RoomPage rooms={rooms} buildings={buildings} campuses={campuses} onAdd={addRoom} onUpdate={updateRoom} onDelete={deleteRoom} />} />
+            <Route
+              path="/campuses"
+              element={
+                <CampusPage
+                  campuses={campuses}
+                  onAdd={addCampus}
+                  onUpdate={updateCampus}
+                  onDelete={deleteCampus}
+                />
+              }
+            />
+            <Route
+              path="/campuses/:campusId/buildings"
+              element={
+                <BuildingPage
+                  campuses={campuses}
+                  buildings={buildings}
+                  onAdd={addBuilding}
+                  onUpdate={updateBuilding}
+                  onDelete={deleteBuilding}
+                />
+              }
+            />
+            <Route
+              path="/buildings/:buildingId/rooms"
+              element={
+                <RoomPage
+                  campuses={campuses}
+                  buildings={buildings}
+                  rooms={rooms}
+                  onAdd={addRoom}
+                  onUpdate={updateRoom}
+                  onDelete={deleteRoom}
+                />
+              }
+            />
           </Routes>
         </main>
       </div>

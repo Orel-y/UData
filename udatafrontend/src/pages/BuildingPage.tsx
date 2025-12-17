@@ -2,60 +2,61 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BuildingSection } from '../components/BuildingSection';
 import { Campus, Building } from '../App';
-import { fetchBuildingsWithRooms, addBuilding, updateBuilding, deleteBuilding } from '../api/api';
+import { fetchBuildingsWithRooms, addBuilding as apiAddBuilding, updateBuilding as apiUpdateBuilding, deleteBuilding as apiDeleteBuilding } from '../api/api';
 
 interface BuildingPageProps {
   campuses: Campus[];
+  buildings: Building[];
+  onAdd: (b: Omit<Building, 'id'>) => void;
+  onUpdate: (id: number, b: Omit<Building, 'id'>) => void;
+  onDelete: (id: number) => void;
 }
 
-export default function BuildingPage({ campuses }: BuildingPageProps) {
+export default function BuildingPage({ campuses, buildings: initialBuildings, onAdd, onUpdate, onDelete }: BuildingPageProps) {
   const params = useParams<{ campusId: string }>();
-  const campusId = params.campusId;
-
+  const campusId = Number(params.campusId);
   const navigate = useNavigate();
 
-  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>(initialBuildings);
   const [loading, setLoading] = useState(true);
 
   const campus = campuses.find(c => c.id === campusId);
 
-  // Fetch buildings on mount
   useEffect(() => {
     if (!campusId) return;
 
-    const campusIdNumber = Number(campusId); // ensure number type for API
     setLoading(true);
-
-    fetchBuildingsWithRooms(campusIdNumber)
+    fetchBuildingsWithRooms(campusId)
       .then(data => setBuildings(data))
       .catch(err => {
         console.error('Error fetching buildings:', err);
-        setBuildings([]); // fail-safe empty list
+        setBuildings([]);
       })
       .finally(() => setLoading(false));
   }, [campusId]);
 
   const handleAdd = async (building: Omit<Building, 'id'>) => {
-    try {
-      const newBuilding = await addBuilding(building);
-      setBuildings(prev => [...prev, newBuilding]);
-    } catch (err) {
-      console.error('Error adding building:', err);
-    }
-  };
+  try {
+    const newBuilding = await apiAddBuilding({ ...building, campusId });
+    setBuildings(prev => [...prev, newBuilding]);
+  } catch (err) {
+    console.error('Error adding building:', err);
+  }
+};
 
-  const handleUpdate = async (id: string, building: Omit<Building, 'id'>) => {
+
+  const handleUpdate = async (id: number, building: Omit<Building, 'id'>) => {
     try {
-      const updated = await updateBuilding(id, building);
-      setBuildings(prev => prev.map(b => (b.id === updated.id ? updated : b)));
+      const updated = await apiUpdateBuilding(id, building);
+      setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
     } catch (err) {
       console.error('Error updating building:', err);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      await deleteBuilding(id);
+      await apiDeleteBuilding(id);
       setBuildings(prev => prev.filter(b => b.id !== id));
     } catch (err) {
       console.error('Error deleting building:', err);

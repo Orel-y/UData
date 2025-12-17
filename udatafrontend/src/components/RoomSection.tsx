@@ -8,10 +8,10 @@ interface RoomSectionProps {
   rooms: Room[];
   buildings: Building[];
   campuses: Campus[];
-  selectedBuildingId: string;
+  selectedBuildingId: number;
   onAdd: (room: Omit<Room, 'id'>) => void;
-  onUpdate: (id: string, room: Omit<Room, 'id'>) => void;
-  onDelete: (id: string) => void;
+  onUpdate: (id: number, room: Omit<Room, 'id'>) => void;
+  onDelete: (id: number) => void;
 }
 
 export function RoomSection({
@@ -74,7 +74,7 @@ export function RoomSection({
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this room?')) {
       onDelete(id);
     }

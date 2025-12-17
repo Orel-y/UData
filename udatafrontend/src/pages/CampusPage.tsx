@@ -1,45 +1,55 @@
 import { useEffect, useState } from 'react';
 import { Campus } from '../App';
 import { CampusSection } from '../components/CampusSection';
-import { fetchCampuses, addCampus, updateCampus, deleteCampus } from '../api/api.ts';
+import { fetchCampuses, addCampus as apiAddCampus, updateCampus as apiUpdateCampus, deleteCampus as apiDeleteCampus } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 
-export default function CampusPage() {
-  const [campuses, setCampuses] = useState<Campus[]>([]);
+interface CampusPageProps {
+  campuses: Campus[];
+  onAdd: (c: Omit<Campus, 'id'>) => void;
+  onUpdate: (id: number, c: Omit<Campus, 'id'>) => void;
+  onDelete: (id: number) => void;
+}
+
+export default function CampusPage({ campuses: initialCampuses, onAdd, onUpdate, onDelete }: CampusPageProps) {
+  const [campuses, setCampuses] = useState<Campus[]>(initialCampuses);
   const navigate = useNavigate();
 
+  // Fetch campuses from backend (optional if you want live sync)
   useEffect(() => {
-    fetchCampuses().then(setCampuses);
+    fetchCampuses()
+      .then(data => setCampuses(data))
+      .catch(err => console.error('Error fetching campuses:', err));
   }, []);
 
   const handleAdd = async (campus: Omit<Campus, 'id'>) => {
     try {
-      const newCampus = await addCampus(campus);
-      setCampuses(prev => [...prev, newCampus]); // use functional updater
-    } catch (error) {
-      console.error('Failed to add campus:', error);
+      const newCampus = await apiAddCampus(campus);
+      setCampuses(prev => [...prev, newCampus]);
+    } catch (err) {
+      console.error('Failed to add campus:', err);
     }
   };
 
-  const handleUpdate = async (id: string, campus: Omit<Campus, 'id'>) => {
+  const handleUpdate = async (id: number, campus: Omit<Campus, 'id'>) => {
     try {
-      const updated = await updateCampus(id, campus);
-      setCampuses(prev => prev.map(c => (c.id.toString() === id ? updated : c)));
-    } catch (error) {
-      console.error('Failed to update campus:', error);
+      const updated = await apiUpdateCampus(id, campus);
+      setCampuses(prev => prev.map(c => (c.id === id ? updated : c)));
+    } catch (err) {
+      console.error('Failed to update campus:', err);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      await deleteCampus(id);
-      setCampuses(prev => prev.filter(c => c.id.toString() !== id));
-    } catch (error) {
-      console.error('Failed to delete campus:', error);
+      await apiDeleteCampus(id);
+      setCampuses(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      console.error('Failed to delete campus:', err);
     }
   };
 
-  const handleNavigate = (id: string) => {
+  const handleNavigate = (id: number) => {
     navigate(`/campuses/${id}/buildings`);
   };
 

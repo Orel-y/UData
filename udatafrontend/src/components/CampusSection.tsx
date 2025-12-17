@@ -6,9 +6,9 @@ import { Modal } from './Modal';
 interface CampusSectionProps {
   campuses: Campus[];
   onAdd: (campus: Omit<Campus, 'id'>) => void;
-  onUpdate: (id: string, campus: Omit<Campus, 'id'>) => void;
-  onDelete: (id: string) => void;
-  onNavigate?: (id: string) => void;
+  onUpdate: (id: number, campus: Omit<Campus, 'id'>) => void;
+  onDelete: (id: number) => void;
+  onNavigate?: (id: number) => void;
 }
 
 export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate }: CampusSectionProps) {
@@ -31,14 +31,14 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingCampus) {
-      onUpdate(editingCampus.id.toString(), formData);
+      onUpdate(editingCampus.id, formData);
     } else {
       onAdd(formData);
     }
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this campus?')) {
       onDelete(id);
     }
@@ -66,7 +66,7 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate 
           campuses.map(campus => (
             <div
               key={campus.id}
-              onClick={() => onNavigate?.(campus.id.toString())}
+              onClick={() => onNavigate?.(campus.id)}
               className="bg-white p-4 rounded-lg border cursor-pointer hover:bg-gray-50 flex justify-between items-center"
             >
               <div>
@@ -82,7 +82,7 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate 
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={e => { e.stopPropagation(); handleDelete(campus.id.toString()); }}
+                  onClick={e => { e.stopPropagation(); handleDelete(campus.id); }}
                   className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete campus"
                 >

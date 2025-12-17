@@ -19,12 +19,12 @@ export const addCampus = async (campus: Omit<Campus, 'id'>): Promise<Campus> => 
   return data;
 };
 
-export const updateCampus = async (id: string, campus: Omit<Campus, 'id'>): Promise<Campus> => {
+export const updateCampus = async (id: number, campus: Omit<Campus, 'id'>): Promise<Campus> => {
   const { data } = await axios.put(`${API_BASE}/campuses/${id}`, campus);
   return data;
 };
 
-export const deleteCampus = async (id: string) => {
+export const deleteCampus = async (id: number) => {
   await axios.delete(`${API_BASE}/campuses/${id}`);
 };
 
@@ -45,12 +45,12 @@ export const addBuilding = async (building: Omit<Building, 'id'>): Promise<Build
   return data;
 };
 
-export const updateBuilding = async (id: string, building: Omit<Building, 'id'>): Promise<Building> => {
+export const updateBuilding = async (id: number, building: Omit<Building, 'id'>): Promise<Building> => {
   const { data } = await axios.put(`${API_BASE}/buildings/${id}`, building);
   return data;
 };
 
-export const deleteBuilding = async (id: string) => {
+export const deleteBuilding = async (id: number) => {
   await axios.delete(`${API_BASE}/buildings/${id}`);
 };
 
@@ -60,7 +60,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
   return data;
 };
 
-export const fetchRoomsByBuilding = async (buildingId: string): Promise<Room[]> => {
+export const fetchRoomsByBuilding = async (buildingId: number): Promise<Room[]> => {
   const { data } = await axios.get(`${API_BASE}/rooms/`, {
     params: { building_id: buildingId }
   });
@@ -77,6 +77,6 @@ export const updateRoom = async (id: string, room: Omit<Room, 'id'>): Promise<Ro
   return data;
 };
 
-export const deleteRoom = async (id: string) => {
+export const deleteRoom = async (id: number) => {
   await axios.delete(`${API_BASE}/rooms/${id}`);
 };
