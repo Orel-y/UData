@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, DoorOpen } from 'lucide-react';
 import { Room, Building, Campus } from '../App';
 import { Modal } from './Modal';
@@ -7,31 +8,37 @@ interface RoomSectionProps {
   rooms: Room[];
   buildings: Building[];
   campuses: Campus[];
+  selectedBuildingId: string;
   onAdd: (room: Omit<Room, 'id'>) => void;
   onUpdate: (id: string, room: Omit<Room, 'id'>) => void;
   onDelete: (id: string) => void;
 }
 
-export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDelete }: RoomSectionProps) {
-  const [selectedCampusId, setSelectedCampusId] = useState<string>('');
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string>('');
+export function RoomSection({
+  rooms,
+  buildings,
+  campuses,
+  selectedBuildingId,
+  onAdd,
+  onUpdate,
+  onDelete,
+}: RoomSectionProps) {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+
+  const building = buildings.find(b => b.id === selectedBuildingId);
+  const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;
+
   const [formData, setFormData] = useState({
     roomNumber: '',
     capacity: 0,
     roomType: '',
     description: '',
-    buildingId: '',
+    buildingId: selectedBuildingId,
   });
 
-  const filteredBuildings = selectedCampusId
-    ? buildings.filter(b => b.campusId === selectedCampusId)
-    : buildings;
-
-  const filteredRooms = selectedBuildingId
-    ? rooms.filter(r => r.buildingId === selectedBuildingId)
-    : rooms;
+  const filteredRooms = rooms.filter(r => r.buildingId === selectedBuildingId);
 
   const openAddModal = () => {
     setFormData({
@@ -39,7 +46,7 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
       capacity: 0,
       roomType: '',
       description: '',
-      buildingId: selectedBuildingId || buildings[0]?.id || '',
+      buildingId: selectedBuildingId,
     });
     setEditingRoom(null);
     setIsModalOpen(true);
@@ -73,11 +80,6 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
     }
   };
 
-  const handleCampusChange = (campusId: string) => {
-    setSelectedCampusId(campusId);
-    setSelectedBuildingId('');
-  };
-
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -86,13 +88,15 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             <DoorOpen className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <h2 className="text-gray-900">Rooms</h2>
-            <p className="text-gray-600 text-sm">Manage rooms within each building</p>
+            <h2 className="text-gray-900">Rooms — {building?.name}</h2>
+            <p className="text-gray-600 text-sm">
+              Manage rooms under this building
+            </p>
           </div>
         </div>
         <button
           onClick={openAddModal}
-          disabled={buildings.length === 0}
+          disabled={!building}
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4" />
@@ -100,52 +104,11 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label htmlFor="campus-filter-room" className="block text-sm text-gray-700 mb-2">
-            Filter by Campus
-          </label>
-          <select
-            id="campus-filter-room"
-            value={selectedCampusId}
-            onChange={e => handleCampusChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="">All Campuses</option>
-            {campuses.map(campus => (
-              <option key={campus.id} value={campus.id}>
-                {campus.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="building-filter" className="block text-sm text-gray-700 mb-2">
-            Filter by Building
-          </label>
-          <select
-            id="building-filter"
-            value={selectedBuildingId}
-            onChange={e => setSelectedBuildingId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            disabled={filteredBuildings.length === 0}
-          >
-            <option value="">All Buildings</option>
-            {filteredBuildings.map(building => (
-              <option key={building.id} value={building.id}>
-                {building.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Room Number</th>
-              <th className="text-left py-3 px-4 text-gray-700 text-sm">Building</th>
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Capacity</th>
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Room Type</th>
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Description</th>
@@ -153,49 +116,49 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             </tr>
           </thead>
           <tbody>
-            {buildings.length === 0 ? (
+            {filteredRooms.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
-                  Please add buildings first before adding rooms.
-                </td>
-              </tr>
-            ) : filteredRooms.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
-                  No rooms found. Click &quot;Add Room&quot; to get started.
+                <td colSpan={5} className="text-center py-8 text-gray-500">
+                  No rooms found. Click “Add Room” to get started.
                 </td>
               </tr>
             ) : (
-              filteredRooms.map(room => {
-                const building = buildings.find(b => b.id === room.buildingId);
-                return (
-                  <tr key={room.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-900">{room.roomNumber}</td>
-                    <td className="py-3 px-4 text-gray-600">{building?.name || 'Unknown'}</td>
-                    <td className="py-3 px-4 text-gray-600">{room.capacity}</td>
-                    <td className="py-3 px-4 text-gray-600">{room.roomType}</td>
-                    <td className="py-3 px-4 text-gray-600">{room.description}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(room)}
-                          className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                          title="Edit room"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(room.id)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete room"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
+              filteredRooms.map(room => (
+                <tr
+                  key={room.id}
+                  className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => navigate(`/rooms/${room.id}`)}
+                >
+                  <td className="py-3 px-4 text-blue-600 hover:underline">{room.roomNumber}</td>
+                  <td className="py-3 px-4 text-gray-600">{room.capacity}</td>
+                  <td className="py-3 px-4 text-gray-600">{room.roomType}</td>
+                  <td className="py-3 px-4 text-gray-600">{room.description}</td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditModal(room);
+                        }}
+                        className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        title="Edit room"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(room.id);
+                        }}
+                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete room"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
@@ -208,33 +171,8 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="room-building" className="block text-sm text-gray-700 mb-1">
-              Building
-            </label>
-            <select
-              id="room-building"
-              value={formData.buildingId}
-              onChange={e => setFormData({ ...formData, buildingId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              required
-            >
-              <option value="">Select a building</option>
-              {buildings.map(building => {
-                const campus = campuses.find(c => c.id === building.campusId);
-                return (
-                  <option key={building.id} value={building.id}>
-                    {building.name} ({campus?.name})
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="room-number" className="block text-sm text-gray-700 mb-1">
-              Room Number
-            </label>
+            <label className="block text-sm text-gray-700 mb-1">Room Number</label>
             <input
-              id="room-number"
               type="text"
               value={formData.roomNumber}
               onChange={e => setFormData({ ...formData, roomNumber: e.target.value })}
@@ -243,13 +181,10 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             />
           </div>
           <div>
-            <label htmlFor="room-capacity" className="block text-sm text-gray-700 mb-1">
-              Capacity
-            </label>
+            <label className="block text-sm text-gray-700 mb-1">Capacity</label>
             <input
-              id="room-capacity"
               type="number"
-              min="0"
+              min={0}
               value={formData.capacity}
               onChange={e => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -257,30 +192,22 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             />
           </div>
           <div>
-            <label htmlFor="room-type" className="block text-sm text-gray-700 mb-1">
-              Room Type
-            </label>
+            <label className="block text-sm text-gray-700 mb-1">Room Type</label>
             <input
-              id="room-type"
               type="text"
               value={formData.roomType}
               onChange={e => setFormData({ ...formData, roomType: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="e.g., Lecture Hall, Laboratory, Office"
               required
             />
           </div>
           <div>
-            <label htmlFor="room-description" className="block text-sm text-gray-700 mb-1">
-              Description
-            </label>
+            <label className="block text-sm text-gray-700 mb-1">Description</label>
             <textarea
-              id="room-description"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
               rows={3}
-              placeholder="Additional details about the room"
               required
             />
           </div>
@@ -288,13 +215,13 @@ export function RoomSection({ rooms, buildings, campuses, onAdd, onUpdate, onDel
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
             >
               {editingRoom ? 'Update' : 'Add'} Room
             </button>
