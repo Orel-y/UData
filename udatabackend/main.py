@@ -1,15 +1,15 @@
 from fastapi import FastAPI
-from app.core.database import create_tables
-from app.core.database import BaseModel, engine
-from app.routers import campuses, buildings, rooms
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.core.database import create_tables
+from app.routers import campuses, buildings, rooms
 
 app = FastAPI(title="UData")
 
 origins = [
-    "http://localhost",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 app.add_middleware(
@@ -19,7 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.on_event("startup")
 def startup():
@@ -32,4 +31,3 @@ def home():
 app.include_router(campuses.router)
 app.include_router(buildings.router)
 app.include_router(rooms.router)
-
