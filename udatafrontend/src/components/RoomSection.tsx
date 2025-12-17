@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, DoorOpen } from 'lucide-react';
 import { Room, Building, Campus } from '../App';
@@ -15,7 +15,7 @@ interface RoomSectionProps {
 }
 
 export function RoomSection({
-  rooms,
+  rooms: initialRooms,
   buildings,
   campuses,
   selectedBuildingId,
@@ -26,6 +26,17 @@ export function RoomSection({
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+  const [rooms, setRooms] = useState<Room[]>([]);
+
+  // Map API rooms to frontend Room type if needed
+  useEffect(() => {
+    setRooms(
+      initialRooms.map(r => ({
+        ...r,
+        buildingId: (r as any).buildingId ?? (r as any).building_id,
+      }))
+    );
+  }, [initialRooms]);
 
   const building = buildings.find(b => b.id === selectedBuildingId);
   const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;
@@ -37,6 +48,11 @@ export function RoomSection({
     description: '',
     buildingId: selectedBuildingId,
   });
+
+  // Update formData buildingId when selectedBuildingId changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, buildingId: selectedBuildingId }));
+  }, [selectedBuildingId]);
 
   const filteredRooms = rooms.filter(r => r.buildingId === selectedBuildingId);
 
@@ -70,6 +86,11 @@ export function RoomSection({
       onUpdate(editingRoom.id, formData);
     } else {
       onAdd(formData);
+      // Optimistically update the local state so new room shows immediately
+      setRooms(prev => [
+        ...prev,
+        { ...formData, id: Date.now() } as Room,
+      ]);
     }
     setIsModalOpen(false);
   };
@@ -77,6 +98,7 @@ export function RoomSection({
   const handleDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this room?')) {
       onDelete(id);
+      setRooms(prev => prev.filter(r => r.id !== id));
     }
   };
 
@@ -96,7 +118,7 @@ export function RoomSection({
         </div>
         <button
           onClick={openAddModal}
-          disabled={!building}
+          disabled={selectedBuildingId === undefined}
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4" />

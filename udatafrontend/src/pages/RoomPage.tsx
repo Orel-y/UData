@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Room, Building, Campus } from '../App';
 import { RoomSection } from '../components/RoomSection';
-import { ArrowLeft } from 'lucide-react';
+import { fetchBuildingsWithRooms, fetchRoomsByBuilding } from '../api/api';
 
 interface Props {
   rooms: Room[];
@@ -13,8 +14,8 @@ interface Props {
 }
 
 export default function RoomPage({
-  rooms,
-  buildings,
+  rooms: initialRooms,
+  buildings: initialBuildings,
   campuses,
   onAdd,
   onUpdate,
@@ -23,18 +24,64 @@ export default function RoomPage({
   const { buildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
 
-  // Convert buildingId from string to number
-  const buildingIdNumber = buildingId ? Number(buildingId) : undefined;
+  // Ensure buildingId is a number or return early
+  if (!buildingId) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <p className="text-red-600 text-center">Invalid building ID.</p>
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+          >
+            Go back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  // Find the building
-  const building = buildingIdNumber
-    ? buildings.find(b => b.id === buildingIdNumber)
-    : undefined;
+  const buildingIdNumber = Number(buildingId);
 
-  // Find campus of the building
+  const [building, setBuilding] = useState<Building | undefined>(
+    initialBuildings.find(b => b.id === buildingIdNumber)
+  );
+  const [rooms, setRooms] = useState<Room[]>(initialRooms);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+
+    // Fetch all buildings and map to frontend type
+    fetchBuildingsWithRooms()
+      .then(data => {
+        const mappedBuildings: Building[] = data.map(b => ({
+          id: b.id,
+          campusId: b.campus_id, // API uses snake_case
+          name: b.name,
+          floorCount: b.floor_count,
+        }));
+
+        const foundBuilding = mappedBuildings.find(b => b.id === buildingIdNumber);
+        if (!foundBuilding) {
+          setBuilding(undefined);
+          setRooms([]);
+        } else {
+          setBuilding(foundBuilding);
+          // Fetch rooms for this building
+          return fetchRoomsByBuilding(buildingIdNumber);
+        }
+      })
+      .then(fetchedRooms => {
+        if (fetchedRooms) setRooms(fetchedRooms);
+      })
+      .catch(err => console.error('Error fetching building or rooms:', err))
+      .finally(() => setLoading(false));
+  }, [buildingIdNumber]);
+
   const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;
 
-  if (!building) {
+  if (!building && !loading) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-12">
         <p className="text-red-600 text-center">Building not found.</p>
@@ -54,7 +101,7 @@ export default function RoomPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-gray-900 text-2xl font-bold">{building.name}</h1>
+          <h1 className="text-gray-900 text-2xl font-bold">{building?.name}</h1>
           <p className="text-gray-600">Manage rooms under this building</p>
         </div>
 
@@ -66,15 +113,19 @@ export default function RoomPage({
         </button>
       </div>
 
-      <RoomSection
-        selectedBuildingId={buildingIdNumber!} // now a number
-        rooms={rooms}
-        buildings={buildings}
-        campuses={campuses}
-        onAdd={onAdd}
-        onUpdate={onUpdate}
-        onDelete={onDelete}
-      />
+      {loading ? (
+        <div className="text-center text-gray-500 py-8">Loading rooms...</div>
+      ) : (
+        <RoomSection
+          selectedBuildingId={buildingIdNumber} // guaranteed number
+          rooms={rooms}
+          buildings={initialBuildings}
+          campuses={campuses}
+          onAdd={onAdd}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
+      )}
     </div>
   );
 }

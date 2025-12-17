@@ -17,7 +17,11 @@ export default function CampusPage({ campuses: initialCampuses, onAdd, onUpdate,
 
   useEffect(() => {
     fetchCampuses()
-      .then(data => setCampuses(data))
+      .then(data => {
+        console.log("Fetched Campuses:", data);
+        setCampuses(data)
+      })
+
       .catch(err => console.error('Error fetching campuses:', err));
   }, []);
 

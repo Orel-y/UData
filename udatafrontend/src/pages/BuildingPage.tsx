@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BuildingSection } from '../components/BuildingSection';
 import { Campus, Building } from '../App';
-import { fetchBuildingsWithRooms, addBuilding as apiAddBuilding, updateBuilding as apiUpdateBuilding, deleteBuilding as apiDeleteBuilding } from '../api/api';
+import { fetchCampuses, fetchBuildingsWithRooms, addBuilding as apiAddBuilding, updateBuilding as apiUpdateBuilding, deleteBuilding as apiDeleteBuilding } from '../api/api';
 
 interface BuildingPageProps {
   campuses: Campus[];
@@ -12,6 +12,13 @@ interface BuildingPageProps {
   onDelete: (id: number) => void;
 }
 
+interface ApiBuilding {
+  id: number;
+  campus_id: number;
+  name: string;
+  floor_count: number;
+}
+
 export default function BuildingPage({ campuses, buildings: initialBuildings, onAdd, onUpdate, onDelete }: BuildingPageProps) {
   const params = useParams<{ campusId: string }>();
   const campusId = Number(params.campusId);
@@ -19,21 +26,43 @@ export default function BuildingPage({ campuses, buildings: initialBuildings, on
 
   const [buildings, setBuildings] = useState<Building[]>(initialBuildings);
   const [loading, setLoading] = useState(true);
+  const [campus, setCampus] = useState<Campus | null>(null);
 
-  const campus = campuses.find(c => c.id === campusId);
+
+useEffect(() => {
+  if (!campusId) return;
+
+  fetchCampuses()
+    .then(data => {
+      const found = data.find(c => c.id === campusId);
+      setCampus(found ?? null);
+    });
+}, [campusId]);
+
+
 
   useEffect(() => {
-    if (!campusId) return;
+  if (!campusId) return;
 
-    setLoading(true);
-    fetchBuildingsWithRooms(campusId)
-      .then(data => setBuildings(data))
-      .catch(err => {
-        console.error('Error fetching buildings:', err);
-        setBuildings([]);
-      })
-      .finally(() => setLoading(false));
-  }, [campusId]);
+  setLoading(true);
+  fetchBuildingsWithRooms(campusId)
+    .then((data: ApiBuilding[]) => {
+      const mappedBuildings: Building[] = data.map(b => ({
+        id: b.id,
+        campusId: b.campus_id,
+        name: b.name,
+        floorCount: b.floor_count,
+      }));
+      setBuildings(mappedBuildings);
+    })
+    .catch(err => {
+      console.error('Error fetching buildings:', err);
+      setBuildings([]);
+    })
+    .finally(() => setLoading(false));
+}, [campusId]);
+
+
 
   const handleAdd = async (building: Omit<Building, 'id'>) => {
   try {
