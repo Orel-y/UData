@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CampusSection } from './components/CampusSection';
 import { BuildingSection } from './components/BuildingSection';
 import { RoomSection } from './components/RoomSection';
-import { Building2, Calendar, ClipboardList, Users } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 export interface Campus {
   id: string;
