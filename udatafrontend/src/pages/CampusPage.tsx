@@ -15,7 +15,6 @@ export default function CampusPage({ campuses: initialCampuses, onAdd, onUpdate,
   const [campuses, setCampuses] = useState<Campus[]>(initialCampuses);
   const navigate = useNavigate();
 
-  // Fetch campuses from backend (optional if you want live sync)
   useEffect(() => {
     fetchCampuses()
       .then(data => setCampuses(data))
