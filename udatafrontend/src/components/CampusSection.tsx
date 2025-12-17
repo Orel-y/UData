@@ -8,16 +8,13 @@ interface CampusSectionProps {
   onAdd: (campus: Omit<Campus, 'id'>) => void;
   onUpdate: (id: string, campus: Omit<Campus, 'id'>) => void;
   onDelete: (id: string) => void;
-  onNavigate?: (id: string) => void; // callback for clickable navigation
+  onNavigate?: (id: string) => void;
 }
 
 export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate }: CampusSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCampus, setEditingCampus] = useState<Campus | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    location: '',
-  });
+  const [formData, setFormData] = useState({ name: '', location: '' });
 
   const openAddModal = () => {
     setFormData({ name: '', location: '' });
@@ -70,43 +67,33 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate 
             <div
               key={campus.id}
               onClick={() => onNavigate?.(campus.id.toString())}
-              className="bg-white p-4 rounded-lg border cursor-pointer hover:bg-gray-50"
+              className="bg-white p-4 rounded-lg border cursor-pointer hover:bg-gray-50 flex justify-between items-center"
             >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-blue-600 text-lg font-medium">{campus.name}</h2>
-                  <p className="text-gray-500">{campus.location}</p>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      openEditModal(campus);
-                    }}
-                    className="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Edit campus"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleDelete(campus.id.toString());
-                    }}
-                    className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete campus"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+              <div>
+                <h2 className="text-blue-600 text-lg">{campus.name}</h2>
+                <p className="text-gray-500">{campus.location}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={e => { e.stopPropagation(); openEditModal(campus); }}
+                  className="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Edit campus"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); handleDelete(campus.id.toString()); }}
+                  className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete campus"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Modal Form */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
