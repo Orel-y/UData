@@ -120,7 +120,8 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Main Content 
+      should create a router and make this in different screen*/}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' ? (
           <div className="space-y-8">
