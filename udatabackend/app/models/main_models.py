@@ -17,7 +17,7 @@ class Building(BaseModel):
     __tablename__ = "building"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    campus_id: Mapped[int] = mapped_column(ForeignKey("campus.id"))
+    campus_id: Mapped[int] = mapped_column(ForeignKey("campus.id", ondelete="CASCADE"))
     name: Mapped[str] = mapped_column(String(50))
     floor_count: Mapped[int] = mapped_column(Integer)
 
@@ -29,7 +29,7 @@ class Room(BaseModel):
     __tablename__ = "room"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    building_id: Mapped[int] = mapped_column(ForeignKey("building.id"))
+    building_id: Mapped[int] = mapped_column(ForeignKey("building.id", ondelete="CASCADE"))
     room_number: Mapped[str] = mapped_column(String(50))
     capacity: Mapped[int] = mapped_column(Integer)
     room_type: Mapped[str] = mapped_column(String(50))
