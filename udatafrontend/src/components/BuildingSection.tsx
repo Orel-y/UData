@@ -2,30 +2,26 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, Building } from 'lucide-react';
 import { Building as BuildingType, Campus } from '../App';
 import { Modal } from './Modal';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate} from 'react-router';
 
 interface BuildingSectionProps {
-  buildings: BuildingType[];
-  campuses: Campus[];
+  campus: Campus;
+  currentCampusBuildings: BuildingType[];
   onAdd: (building: Omit<BuildingType, 'id'>) => void;
   onUpdate: (id: string, building: Omit<BuildingType, 'id'>) => void;
   onDelete: (id: string) => void;
 }
 
-export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete }: BuildingSectionProps) {
+export function BuildingSection({ campus,currentCampusBuildings, onAdd, onUpdate, onDelete }: BuildingSectionProps) {
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState<BuildingType | null>(null);
   const [formData, setFormData] = useState({ name: '', floorCount: 1, campusId: '' });
 
-  const {campusId} = useParams();
-  const campus = campuses.find(c => c.id === campusId);
-
-  const filteredBuildings = buildings.filter(b => b.campusId === campusId);
 
   const openAddModal = () => {
-    setFormData({ name: '', floorCount: 1, campusId: campusId || ''});
+    setFormData({ name: '', floorCount: 1, campusId: campus.id || ''});
     setEditingBuilding(null);
     setIsModalOpen(true);
   };
@@ -58,6 +54,9 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
 
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div>
+        <h2 className='font-lm font-bold'><b>Campus:</b> {campus.name}</h2><br/>
+      </div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -65,12 +64,12 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
           </div>
           <div>
             <h2 className="text-gray-900">Buildings</h2>
-            <p className="text-gray-600 text-sm">Manage buildings within each campus</p>
+            <p className="text-gray-600 text-sm">Manage buildings within campuses</p>
           </div>
         </div>
         <button
           onClick={openAddModal}
-          disabled={campuses.length === 0}
+          disabled={campus == null}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4" />
@@ -95,20 +94,20 @@ export function BuildingSection({ buildings, campuses, onAdd, onUpdate, onDelete
             </tr>
           </thead>
           <tbody>
-            {campuses.length === 0 ? (
+            {campus == null ? (
               <tr>
                 <td colSpan={4} className="text-center py-8 text-gray-500">
                   Please add a campus first before adding buildings.
                 </td>
               </tr>
-            ) : filteredBuildings.length === 0 ? (
+            ) : currentCampusBuildings.length === 0 ? (
               <tr>
                 <td colSpan={4} className="text-center py-8 text-gray-500">
                   No buildings found. Click &quot;Add Building&quot; to get started.
                 </td>
               </tr>
             ) : (
-              filteredBuildings.map(building => {
+              currentCampusBuildings.map(building => {
                 return (
                   <tr key={building.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4 text-gray-900" onClick={()=>handleBuildingClick(building)}>{building.name}</td>

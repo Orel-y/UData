@@ -45,7 +45,6 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete }: CampusSec
     }
   };
   const handleCampusClick = (campus: Campus) => {
-    console.log("Campus clicked:", campus);
     navigate(`/campus/`+campus.id);
   };
 

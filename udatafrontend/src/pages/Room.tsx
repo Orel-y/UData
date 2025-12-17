@@ -6,12 +6,11 @@ import { useParams } from "react-router";
 
 export default function RoomPage() {
   const { campuses,buildings, rooms, setRooms } = useContext(AppContext);
-
+  
   const {campusId,buildingId} = useParams();
-
-  const campus = campuses.filter(c=>c.id==campusId)[0];
+  const campus = campuses.filter(c=>c.id===campusId)[0];
   const building = buildings.filter(b=>b.id===buildingId)[0];
-  console.log(campus,building)
+  const filteredRooms = rooms.filter(r=>r.buildingId==buildingId);
 
   const addRoom = (room: Omit<Room, 'id'>) => {
     const newRoom = { ...room, id: Date.now().toString() };
@@ -27,15 +26,15 @@ export default function RoomPage() {
   };
 
   return (
-    <div>
-            <RoomSection
-              rooms={rooms}
+    (building ? <RoomSection
+              rooms={filteredRooms}
               building={building}
               campus={campus}
               onAdd={addRoom}
               onUpdate={updateRoom}
               onDelete={deleteRoom}
             />
-    </div>
+            : "No Building exists with this credential")
+   
   )
 }

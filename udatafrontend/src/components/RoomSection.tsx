@@ -13,8 +13,6 @@ interface RoomSectionProps {
 }
 
 export function RoomSection({ rooms, building, campus, onAdd, onUpdate, onDelete }: RoomSectionProps) {
-  const [selectedCampusId, setSelectedCampusId] = useState<string>('');
-  const [selectedBuildingId, setSelectedBuildingId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [formData, setFormData] = useState({
@@ -25,11 +23,6 @@ export function RoomSection({ rooms, building, campus, onAdd, onUpdate, onDelete
     buildingId: '',
   });
 
-  const filteredBuildings = building;
-
-  const filteredRooms = selectedBuildingId
-    ? rooms.filter(r => r.buildingId === selectedBuildingId)
-    : rooms;
 
   const openAddModal = () => {
     setFormData({
@@ -73,9 +66,8 @@ export function RoomSection({ rooms, building, campus, onAdd, onUpdate, onDelete
 
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className='flex item-center font-bold text-gray-900 text-l'>
-        <label>{campus.name} {building.name} Building</label>
-      </div>
+      <span><b>Campus: </b>{campus.name}</span><br/>
+      <span><b>Building: </b>{building.name}</span><br/><br/>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -96,8 +88,6 @@ export function RoomSection({ rooms, building, campus, onAdd, onUpdate, onDelete
         </button>
       </div>
 
-      
-
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -117,14 +107,14 @@ export function RoomSection({ rooms, building, campus, onAdd, onUpdate, onDelete
                   Please add buildings first before adding rooms.
                 </td>
               </tr>
-            ) : filteredRooms.length === 0 ? (
+            ) : rooms.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-gray-500">
                   No rooms found. Click &quot;Add Room&quot; to get started.
                 </td>
               </tr>
             ) : (
-              filteredRooms.map(room => {
+              rooms.map(room => {
                 return (
                   <tr key={room.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4 text-gray-900">{room.roomNumber}</td>
