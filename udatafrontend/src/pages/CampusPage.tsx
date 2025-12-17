@@ -1,54 +1,56 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Campus } from '../App';
 import { CampusSection } from '../components/CampusSection';
+import { fetchCampuses, addCampus, updateCampus, deleteCampus } from '../api/api.ts';
+import { useNavigate } from 'react-router-dom';
 
-interface Props {
-  campuses: Campus[];
-  onAdd: (campus: Omit<Campus, 'id'>) => void;
-  onUpdate: (id: string, campus: Omit<Campus, 'id'>) => void;
-  onDelete: (id: string) => void;
-}
-
-export default function CampusPage({
-  campuses,
-  onAdd,
-  onUpdate,
-  onDelete,
-}: Props) {
+export default function CampusPage() {
+  const [campuses, setCampuses] = useState<Campus[]>([]);
   const navigate = useNavigate();
 
+  // Fetch campuses on mount
+  useEffect(() => {
+    fetchCampuses().then(setCampuses);
+  }, []);
+
+  const handleAdd = async (campus: Omit<Campus, 'id'>) => {
+    try {
+      const newCampus = await addCampus(campus);
+      setCampuses(prev => [...prev, newCampus]); // use functional updater
+    } catch (error) {
+      console.error('Failed to add campus:', error);
+    }
+  };
+
+  const handleUpdate = async (id: string, campus: Omit<Campus, 'id'>) => {
+    try {
+      const updated = await updateCampus(id, campus);
+      setCampuses(prev => prev.map(c => (c.id.toString() === id ? updated : c)));
+    } catch (error) {
+      console.error('Failed to update campus:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCampus(id);
+      setCampuses(prev => prev.filter(c => c.id.toString() !== id));
+    } catch (error) {
+      console.error('Failed to delete campus:', error);
+    }
+  };
+
+  const handleNavigate = (id: string) => {
+    navigate(`/campuses/${id}/buildings`);
+  };
+
   return (
-    <div className="space-y-10">
-      <CampusSection
-        campuses={campuses}
-        onAdd={onAdd}
-        onUpdate={onUpdate}
-        onDelete={onDelete}
-      />
-
-
-      <div>
-        <br />
-        <h1 className="text-gray-900 mb-4 ">Campuses</h1>
-        <div className="grid gap-4">
-          {campuses.map(campus => (
-            <div
-              key={campus.id}
-              onClick={() =>
-                navigate(`/campuses/${campus.id}/buildings`)
-              }
-              className="bg-white p-4 rounded-lg border cursor-pointer hover:bg-gray-50"
-            >
-              <h2 className="text-blue-600 text-lg">
-                {campus.name}
-              </h2>
-              <p className="text-gray-500">{campus.location}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-     
-    </div>
+    <CampusSection
+      campuses={campuses}
+      onAdd={handleAdd}
+      onUpdate={handleUpdate}
+      onDelete={handleDelete}
+      onNavigate={handleNavigate}
+    />
   );
 }
