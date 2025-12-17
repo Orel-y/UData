@@ -8,7 +8,6 @@ export default function CampusPage() {
   const [campuses, setCampuses] = useState<Campus[]>([]);
   const navigate = useNavigate();
 
-  // Fetch campuses on mount
   useEffect(() => {
     fetchCampuses().then(setCampuses);
   }, []);
