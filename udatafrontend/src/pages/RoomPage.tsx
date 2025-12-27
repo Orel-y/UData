@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, data } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Room, Building, Campus } from '../App';
 import { RoomSection } from '../components/RoomSection';
@@ -36,31 +36,35 @@ export default function RoomPage() {
 
   useEffect(() => {
     setLoading(true);
+    fetchRoomsByBuilding(buildingIdNumber)
+    .then(data=>{
+      setRooms(data)
+      setLoading(false)
+    })
+    // fetchBuildingsWithRooms()
+    //   .then(data => {
+    //     const mappedBuildings: Building[] = data.map(b => ({
+    //       id: b.id,
+    //       campusId: b.campus_id,
+    //       name: b.name,
+    //       floorCount: b.floor_count,
+    //     }));
 
-    fetchBuildingsWithRooms()
-      .then(data => {
-        const mappedBuildings: Building[] = data.map(b => ({
-          id: b.id,
-          campusId: b.campus_id,
-          name: b.name,
-          floorCount: b.floor_count,
-        }));
-
-        const foundBuilding = mappedBuildings.find(b => b.id === buildingIdNumber);
-        if (!foundBuilding) {
-          setBuilding(undefined);
-          setRooms([]);
-        } else {
-          setBuilding(foundBuilding);
+    //     const foundBuilding = mappedBuildings.find(b => b.id === buildingIdNumber);
+    //     if (!foundBuilding) {
+    //       setBuilding(undefined);
+    //       setRooms([]);
+    //     } else {
+    //       setBuilding(foundBuilding);
          
-          return fetchRoomsByBuilding(buildingIdNumber);
-        }
-      })
-      .then(fetchedRooms => {
-        if (fetchedRooms) setRooms(fetchedRooms);
-      })
-      .catch(err => console.error('Error fetching building or rooms:', err))
-      .finally(() => setLoading(false));
+    //       return fetchRoomsByBuilding(buildingIdNumber);
+    //     }
+    //   })
+    //   .then(fetchedRooms => {
+    //     if (fetchedRooms) setRooms(fetchedRooms);
+    //   })
+    //   .catch(err => console.error('Error fetching building or rooms:', err))
+    //   .finally(() => setLoading(false));
   }, [buildingIdNumber]);
 
   const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;

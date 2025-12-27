@@ -43,7 +43,9 @@ export default function LoginPage() {
                     onChange={(e)=>setFormData({...formData,email:e.target.value})}
                     className={(error==1 || error==3 ? 
                             "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} />
+                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} 
+                    placeholder='youremail@gmail.com'
+                    required/>
             </div>
             <div className="m-4">
                 <label htmlFor='email'>Password</label>
@@ -51,7 +53,10 @@ export default function LoginPage() {
                     onChange={(e)=>setFormData({...formData,password:e.target.value})}
                     className={(error==2 || error==3 ? 
                             "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} />
+                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} 
+                    placeholder='....'
+                    required
+                    />
             </div>
             <div className="m-4">
                 <button
@@ -60,7 +65,8 @@ export default function LoginPage() {
                     >Login</button>
             </div>
             <div>
-                <p className='text-center'>Don't have account? <Link to="/register">Sign up</Link></p>
+                {/* <p className='text-center'>Don't have account? <Link to="/register">Sign up</Link></p> */}
+                <p className='text-right'><Link to="/">Forgot Password?</Link></p>
             </div>
         </form>
      </div>

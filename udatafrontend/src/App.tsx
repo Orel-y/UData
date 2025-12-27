@@ -4,7 +4,7 @@ import { Building2 } from 'lucide-react';
 import AuthProvider from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
-import RegistrationPage from './pages/RegistrationPage';
+// import RegistrationPage from './pages/RegistrationPage';
 import CampusPage from './pages/CampusPage';
 import BuildingPage from './pages/BuildingPage';
 import RoomPage from './pages/RoomPage';
@@ -54,7 +54,7 @@ export default function App() {
         <main className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
             <Route path="/" element={<LoginPage />} />
-            <Route path='/register' element={<RegistrationPage />} />
+            {/* <Route path='/register' element={<RegistrationPage />} /> */}
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/campuses" element={<CampusPage />} />

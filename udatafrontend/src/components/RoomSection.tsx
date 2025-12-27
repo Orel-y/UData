@@ -29,14 +29,14 @@ export function RoomSection({
   const [rooms, setRooms] = useState<Room[]>([]);
 
   // Map API rooms to frontend Room type if needed
-  useEffect(() => {
-    setRooms(
-      initialRooms.map(r => ({
-        ...r,
-        buildingId: (r as any).buildingId ?? (r as any).building_id,
-      }))
-    );
-  }, [initialRooms]);
+  // useEffect(() => {
+  //   setRooms(
+  //     initialRooms.map(r => ({
+  //       ...r,
+  //       buildingId: (r as any).buildingId ?? (r as any).building_id,
+  //     }))
+  //   );
+  // }, [initialRooms]);
 
   const building = buildings.find(b => b.id === selectedBuildingId);
   const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;
@@ -54,7 +54,7 @@ export function RoomSection({
     setFormData(prev => ({ ...prev, buildingId: selectedBuildingId }));
   }, [selectedBuildingId]);
 
-  const filteredRooms = rooms.filter(r => r.buildingId === selectedBuildingId);
+  const filteredRooms =initialRooms;
 
   const openAddModal = () => {
     setFormData({
@@ -92,6 +92,7 @@ export function RoomSection({
         { ...formData, id: Date.now() } as Room,
       ]);
     }
+    console.log(formData);
     setIsModalOpen(false);
   };
 

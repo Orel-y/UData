@@ -1,6 +1,7 @@
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
 import { useState } from 'react';
+import placeholder from '../assets/image.png' 
 
 export default function ProfilePanel() {
   const { currentUser, logout } = useAuth();
@@ -14,9 +15,9 @@ export default function ProfilePanel() {
         (showProfile ? <>
         <div className="flex flex-col items-center gap-3">
           <img
-            src={currentUser.avatarUrl}
+            src={placeholder}
             alt={currentUser.username}
-            style={{ width: 130, height: 90, objectFit: 'cover' }}
+            style={{ width: 130, height: 100, objectFit: 'cover' }}
             className="rounded-sm"
           />
           <div className="font-semibold mt-1">{currentUser.username}</div>
