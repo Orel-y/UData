@@ -1,13 +1,12 @@
-import { FormEvent, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { FormEvent, useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
+
 
 export default function LoginPage() {
     const {isAuthenticated,login} = useAuth();
+    const navigate = useNavigate();
 
-    if(isAuthenticated){
-        // route to home page
-    }
 
     const [error,setError] = useState(0); //here if email is empty error=1, if password is empty error=2 and if both error=3
     const [formData,setFormData] = useState({

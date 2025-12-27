@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
 
-/* Pages */
 import AuthProvider from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -35,30 +33,6 @@ export interface Room {
 }
 
 export default function App() {
-  const [campuses, setCampuses] = useState<Campus[]>([]);
-
-  const [buildings, setBuildings] = useState<Building[]>([]);
-
-  const [rooms, setRooms] = useState<Room[]>([]);
-
-  /* Handlers (CRUD) */
-  const addCampus = (c: Omit<Campus, 'id'>) => setCampuses([...campuses, { ...c, id: Date.now() }]);
-  const updateCampus = (id: number, c: Omit<Campus, 'id'>) => setCampuses(campuses.map(ca => (ca.id === id ? { ...c, id } : ca)));
-  const deleteCampus = (id: number) => {
-    setCampuses(campuses.filter(c => c.id !== id));
-    setBuildings(buildings.filter(b => b.campusId !== id));
-  };
-
-  const addBuilding = (b: Omit<Building, 'id'>) => setBuildings([...buildings, { ...b, id: Date.now() }]);
-  const updateBuilding = (id: number, b: Omit<Building, 'id'>) => setBuildings(buildings.map(bu => (bu.id === id ? { ...b, id } : bu)));
-  const deleteBuilding = (id: number) => {
-    setBuildings(buildings.filter(b => b.id !== id));
-    setRooms(rooms.filter(r => r.buildingId !== id));
-  };
-
-  const addRoom = (r: Omit<Room, 'id'>) => setRooms([...rooms, { ...r, id: Date.now() }]);
-  const updateRoom = (id: number, r: Omit<Room, 'id'>) => setRooms(rooms.map(ro => (ro.id === id ? { ...r, id } : ro)));
-  const deleteRoom = (id: number) => setRooms(rooms.filter(r => r.id !== id));
 
   return (
     <BrowserRouter>
@@ -80,43 +54,10 @@ export default function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path='/register' element={<RegistrationPage />} />
             <Route element={<ProtectedRoute />}>
-              <Route
-                path="/campuses"
-                element={
-                  <CampusPage
-                    campuses={campuses}
-                    onAdd={addCampus}
-                    onUpdate={updateCampus}
-                    onDelete={deleteCampus}
-                  />
-                }
-              />
-              <Route
-                path="/campuses/:campusId/buildings"
-                element={
-                  <BuildingPage
-                    campuses={campuses}
-                    buildings={buildings}
-                    onAdd={addBuilding}
-                    onUpdate={updateBuilding}
-                    onDelete={deleteBuilding}
-                  />
-                }
-              />
-              <Route
-                path="/buildings/:buildingId/rooms"
-                element={
-                  <RoomPage
-                    campuses={campuses}
-                    buildings={buildings}
-                    rooms={rooms}
-                    onAdd={addRoom}
-                    onUpdate={updateRoom}
-                    onDelete={deleteRoom}
-                  />
-                }
-              />
-              </Route>
+                <Route path="/campuses" element={<CampusPage />} />
+                <Route path="/campuses/:campusId/buildings" element={<BuildingPage />} />
+                <Route path="/buildings/:buildingId/rooms" element={<RoomPage />} />
+            </Route>
           </Routes>
         </main>
       </div>

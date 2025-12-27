@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Room, Building, Campus } from '../App';
 import { RoomSection } from '../components/RoomSection';
-import { fetchBuildingsWithRooms, fetchRoomsByBuilding } from '../api/api';
+import { useData } from '../context/DataContext';
 
 interface Props {
   rooms: Room[];
@@ -13,16 +13,10 @@ interface Props {
   onDelete: (id: number) => void;
 }
 
-export default function RoomPage({
-  rooms: initialRooms,
-  buildings: initialBuildings,
-  campuses,
-  onAdd,
-  onUpdate,
-  onDelete,
-}: Props) {
+export default function RoomPage() {
   const { buildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
+  const { fetchBuildingsWithRooms, fetchRoomsByBuilding, buildings: contextBuildings, campuses, addRoom, updateRoom, deleteRoom } = useData();
 
   // Ensure buildingId is a number or return early
   if (!buildingId) {
@@ -44,7 +38,7 @@ export default function RoomPage({
   const buildingIdNumber = Number(buildingId);
 
   const [building, setBuilding] = useState<Building | undefined>(
-    initialBuildings.find(b => b.id === buildingIdNumber)
+    contextBuildings.find(b => b.id === buildingIdNumber)
   );
   const [rooms, setRooms] = useState<Room[]>(initialRooms);
   const [loading, setLoading] = useState(true);
@@ -119,11 +113,11 @@ export default function RoomPage({
         <RoomSection
           selectedBuildingId={buildingIdNumber} // guaranteed number
           rooms={rooms}
-          buildings={initialBuildings}
+          buildings={contextBuildings}
           campuses={campuses}
-          onAdd={onAdd}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
+          onAdd={addRoom}
+          onUpdate={updateRoom}
+          onDelete={deleteRoom}
         />
       )}
     </div>

@@ -1,67 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Campus } from '../App';
+import { useEffect } from 'react';
 import { CampusSection } from '../components/CampusSection';
-import { fetchCampuses, addCampus as apiAddCampus, updateCampus as apiUpdateCampus, deleteCampus as apiDeleteCampus } from '../api/api';
+import { useData } from '../context/DataContext';
 import { useNavigate } from 'react-router-dom';
 
-interface CampusPageProps {
-  campuses: Campus[];
-  onAdd: (c: Omit<Campus, 'id'>) => void;
-  onUpdate: (id: number, c: Omit<Campus, 'id'>) => void;
-  onDelete: (id: number) => void;
-}
-
-export default function CampusPage({ campuses: initialCampuses, onAdd, onUpdate, onDelete }: CampusPageProps) {
-  const [campuses, setCampuses] = useState<Campus[]>(initialCampuses);
+export default function CampusPage() {
   const navigate = useNavigate();
+  const { campuses, fetchCampuses, addCampus, updateCampus, deleteCampus } = useData();
 
   useEffect(() => {
-    fetchCampuses()
-      .then(data => {
-        console.log("Fetched Campuses:", data);
-        setCampuses(data)
-      })
-
-      .catch(err => console.error('Error fetching campuses:', err));
+    // Ensure campuses are loaded
+    fetchCampuses().catch(err => console.error('Error fetching campuses:', err));
   }, []);
 
-  const handleAdd = async (campus: Omit<Campus, 'id'>) => {
-    try {
-      const newCampus = await apiAddCampus(campus);
-      setCampuses(prev => [...prev, newCampus]);
-    } catch (err) {
-      console.error('Failed to add campus:', err);
-    }
-  };
-
-  const handleUpdate = async (id: number, campus: Omit<Campus, 'id'>) => {
-    try {
-      const updated = await apiUpdateCampus(id, campus);
-      setCampuses(prev => prev.map(c => (c.id === id ? updated : c)));
-    } catch (err) {
-      console.error('Failed to update campus:', err);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await apiDeleteCampus(id);
-      setCampuses(prev => prev.filter(c => c.id !== id));
-    } catch (err) {
-      console.error('Failed to delete campus:', err);
-    }
-  };
-
-  const handleNavigate = (id: number) => {
-    navigate(`/campuses/${id}/buildings`);
-  };
+  const handleNavigate = (id: number) => navigate(`/campuses/${id}/buildings`);
 
   return (
     <CampusSection
       campuses={campuses}
-      onAdd={handleAdd}
-      onUpdate={handleUpdate}
-      onDelete={handleDelete}
+      onAdd={addCampus}
+      onUpdate={updateCampus}
+      onDelete={deleteCampus}
       onNavigate={handleNavigate}
     />
   );
