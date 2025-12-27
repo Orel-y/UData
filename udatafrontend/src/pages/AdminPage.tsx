@@ -50,7 +50,7 @@ export default function AdminPage() {
                       <div className="font-medium">{u.username}</div>
                       <div className="text-xs text-gray-500">{u.email}</div>
                     </div>
-                    {u.isAdmin && <div className="text-xs text-white bg-blue-600 px-2 py-1 rounded">Admin</div>}
+                    {u.isAdmin && <div className="text-xs text-white bg-blue-600 p-2 py-1 rounded-4">Admin</div>}
                   </div>
                 </button>
               </li>
@@ -58,8 +58,8 @@ export default function AdminPage() {
           </ul>
 
           <form onSubmit={handleAddUser} className="mt-4 space-y-3">
-            <input className="w-full px-3 py-2 border rounded" placeholder="email" value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
-            <input className="w-full px-3 py-2 border rounded" placeholder="username" value={form.username} onChange={e => setForm(s => ({...s, username: e.target.value}))} required />
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="email" value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="username" value={form.username} onChange={e => setForm(s => ({...s, username: e.target.value}))} required />
             <label className="inline-flex items-center gap-2"><input type="checkbox" checked={form.isAdmin} onChange={e => setForm(s => ({...s, isAdmin: e.target.checked}))} /> Make admin</label>
             <div className="flex gap-2">
               <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded">Add user</button>

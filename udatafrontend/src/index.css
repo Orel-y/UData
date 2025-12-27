@@ -1246,6 +1246,17 @@ html {
   syntax: "*";
   inherits: false
 }
+.my-2{
+  margin: 4px ;
+}
+.py-1{
+  padding-top:1px,
+  
+}
+.rounded-4{
+  border-radius: 4px;
+}
+
 .showProfile{
   display: none;
 }
