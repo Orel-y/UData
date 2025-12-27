@@ -1,6 +1,38 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as api from '../api/api';
 import { Campus, Building, Room } from '../App';
+// lightweight op id generator (avoids adding a dependency)
+const makeOpId = () => `${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
+
+// Pending building operation stored when offline
+type PendingBuildingOp = {
+  opId: string;
+  type: 'add' | 'update' | 'delete';
+  tempId?: number; // used for adds before server assigns id
+  id?: number; // server id or eventual id
+  payload?: any; // the building data
+  createdAt: number;
+};
+
+const PENDING_BUILDING_OPS_KEY = 'pendingBuildingOps';
+
+const loadPendingBuildingOps = (): PendingBuildingOp[] => {
+  try {
+    const raw = localStorage.getItem(PENDING_BUILDING_OPS_KEY);
+    return raw ? (JSON.parse(raw) as PendingBuildingOp[]) : [];
+  } catch (e) {
+    console.error('Failed to load pending building ops', e);
+    return [];
+  }
+};
+
+const savePendingBuildingOps = (ops: PendingBuildingOp[]) => {
+  try {
+    localStorage.setItem(PENDING_BUILDING_OPS_KEY, JSON.stringify(ops));
+  } catch (e) {
+    console.error('Failed to save pending building ops', e);
+  }
+};
 
 export interface DataContextValue {
   campuses: Campus[];
@@ -20,6 +52,9 @@ export interface DataContextValue {
   deleteRoom: (id: number) => Promise<void>;
   // Sync local campuses that are present in state but not on the backend
   syncLocalCampusesToBackend: () => Promise<{ added: Campus[]; skipped: Campus[] } | null>;
+  // Offline building sync helpers
+  syncPendingBuildings: () => Promise<{ processed: number } | void>;
+  pendingBuildingOpsCount: number;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -151,23 +186,90 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRooms(prev => prev.filter(r => !removedBuildingIds.includes(r.buildingId)));
   };
 
+  const [pendingBuildingOps, setPendingBuildingOps] = useState<PendingBuildingOp[]>(() => loadPendingBuildingOps());
+
+  const enqueuePendingBuildingOp = (op: PendingBuildingOp) => {
+    setPendingBuildingOps(prev => {
+      const next = [...prev, op];
+      savePendingBuildingOps(next);
+      return next;
+    });
+  };
+
   const addBuilding = async (building: Omit<Building, 'id'>) => {
-    const data = await api.addBuilding(building);
-    setBuildings(prev => [...prev, data]);
-    return data;
+    // if offline, create a temporary local record and enqueue for later sync
+    if (!navigator.onLine) {
+      const tempId = Date.now() * -1; // negative temporary id
+      const local: Building = { id: tempId, ...building } as Building;
+      setBuildings(prev => [...prev, local]);
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: building, createdAt: Date.now() });
+      return local;
+    }
+
+    try {
+      const data = await api.addBuilding(building);
+      setBuildings(prev => [...prev, data]);
+      return data;
+    } catch (err) {
+      console.warn('addBuilding failed, queuing op', err);
+      const tempId = Date.now() * -1;
+      const local: Building = { id: tempId, ...building } as Building;
+      setBuildings(prev => [...prev, local]);
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: building, createdAt: Date.now() });
+      return local;
+    }
   };
 
   const updateBuilding = async (id: number, building: Omit<Building, 'id'>) => {
-    const updated = await api.updateBuilding(id, building);
-    setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
-    return updated;
+    // if the id is a temporary id (negative), just update local and enqueue
+    if (id < 0 || !navigator.onLine) {
+      setBuildings(prev => prev.map(b => (b.id === id ? { ...b, ...building } : b)));
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'update', tempId: id < 0 ? id : undefined, id: id > 0 ? id : undefined, payload: building, createdAt: Date.now() });
+      return { id, ...building } as Building;
+    }
+
+    try {
+      const updated = await api.updateBuilding(id, building);
+      setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
+      return updated;
+    } catch (err) {
+      console.warn('updateBuilding failed, queuing op', err);
+      setBuildings(prev => prev.map(b => (b.id === id ? { ...b, ...building } : b)));
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'update', id, payload: building, createdAt: Date.now() });
+      return { id, ...building } as Building;
+    }
   };
 
   const deleteBuilding = async (id: number) => {
-    await api.deleteBuilding(id);
-    setBuildings(prev => prev.filter(b => b.id !== id));
-    setRooms(prev => prev.filter(r => r.buildingId !== id));
+    // if deleting a temporary (local-only) building, just remove it and drop any pending adds
+    if (id < 0 || !navigator.onLine) {
+      setBuildings(prev => prev.filter(b => b.id !== id));
+      setRooms(prev => prev.filter(r => r.buildingId !== id));
+      // remove related pending ops (e.g., add) and keep updated queue
+      setPendingBuildingOps(prev => {
+        const next = prev.filter(op => !(op.type === 'add' && op.tempId === id));
+        savePendingBuildingOps(next);
+        return next;
+      });
+      // queue a delete only if it had a real id but we're offline (handled above by !navigator.onLine)
+      if (id > 0 && !navigator.onLine) {
+        enqueuePendingBuildingOp({ opId: makeOpId(), type: 'delete', id, createdAt: Date.now() });
+      }
+      return;
+    }
+
+    try {
+      await api.deleteBuilding(id);
+      setBuildings(prev => prev.filter(b => b.id !== id));
+      setRooms(prev => prev.filter(r => r.buildingId !== id));
+    } catch (err) {
+      console.warn('deleteBuilding failed, queuing op', err);
+      setBuildings(prev => prev.filter(b => b.id !== id));
+      setRooms(prev => prev.filter(r => r.buildingId !== id));
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'delete', id, createdAt: Date.now() });
+    }
   };
+
 
   const addRoom = async (room: Omit<Room, 'id'>) => {
     const data = await api.addRoom(room);
@@ -186,10 +288,106 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRooms(prev => prev.filter(r => r.id !== id));
   };
 
+  const flushPendingBuildingOps = async () => {
+    const ops = loadPendingBuildingOps();
+    if (!ops || ops.length === 0) return { processed: 0 };
+
+    let remaining: PendingBuildingOp[] = [...ops];
+    const tempIdMap = new Map<number, number>(); // tempId -> realId
+
+    // Process adds first
+    for (const op of ops.filter(o => o.type === 'add')) {
+      try {
+        const { payload, tempId } = op;
+        const created = await api.addBuilding(payload);
+        // replace local temp in state
+        setBuildings(prev => prev.map(b => (b.id === tempId ? created : b)));
+        tempIdMap.set(tempId!, created.id);
+        // remove this op from remaining
+        remaining = remaining.filter(r => r.opId !== op.opId);
+        // update other ops that referenced tempId
+        remaining = remaining.map(r => {
+          if (r.tempId && r.tempId === tempId) {
+            return { ...r, id: created.id, tempId: undefined };
+          }
+          return r;
+        });
+      } catch (err) {
+        console.error('Failed to flush add op', op, err);
+        // likely still offline or server error - stop processing to avoid repeated failures
+        savePendingBuildingOps(remaining);
+        setPendingBuildingOps(remaining);
+        return { processed: ops.length - remaining.length };
+      }
+    }
+
+    // Process updates
+    for (const op of remaining.filter(o => o.type === 'update')) {
+      try {
+        const idToUse = op.id ?? op.tempId;
+        if (!idToUse || (op.tempId && !tempIdMap.has(op.tempId))) {
+          // cannot process update if it references an add that failed to sync
+          continue;
+        }
+        const id = op.id ?? tempIdMap.get(op.tempId!);
+        const updated = await api.updateBuilding(id!, op.payload);
+        setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
+        remaining = remaining.filter(r => r.opId !== op.opId);
+      } catch (err) {
+        console.error('Failed to flush update op', op, err);
+        savePendingBuildingOps(remaining);
+        setPendingBuildingOps(remaining);
+        return { processed: ops.length - remaining.length };
+      }
+    }
+
+    // Process deletes
+    for (const op of remaining.filter(o => o.type === 'delete')) {
+      try {
+        // if this delete references a tempId that was never created, just remove it
+        if (op.id && op.id < 0) {
+          // local-only; nothing to do
+          remaining = remaining.filter(r => r.opId !== op.opId);
+          continue;
+        }
+        const id = op.id ?? (op.tempId ? tempIdMap.get(op.tempId) : undefined);
+        if (!id) {
+          remaining = remaining.filter(r => r.opId !== op.opId);
+          continue;
+        }
+        await api.deleteBuilding(id);
+        setBuildings(prev => prev.filter(b => b.id !== id));
+        setRooms(prev => prev.filter(r => r.buildingId !== id));
+        remaining = remaining.filter(r => r.opId !== op.opId);
+      } catch (err) {
+        console.error('Failed to flush delete op', op, err);
+        savePendingBuildingOps(remaining);
+        setPendingBuildingOps(remaining);
+        return { processed: ops.length - remaining.length };
+      }
+    }
+
+    savePendingBuildingOps(remaining);
+    setPendingBuildingOps(remaining);
+    return { processed: ops.length - remaining.length };
+  };
+
   useEffect(() => {
-    // fetchCampuses().catch(err => console.error('Failed to fetch campuses', err));
-    // instead of fetching campuses filter by the user's id from existing campuses data
-    // setCampuses(campuses)
+    // try flushing pending ops when we become online
+    const onOnline = () => {
+      flushPendingBuildingOps().catch(err => console.error('Error flushing building ops on online', err));
+    };
+
+    window.addEventListener('online', onOnline);
+
+    // try on mount if online
+    if (navigator.onLine) {
+      flushPendingBuildingOps().catch(err => console.error('Error flushing building ops on init', err));
+    }
+
+    return () => {
+      window.removeEventListener('online', onOnline);
+    };
   }, []);
 
   return (
@@ -211,6 +409,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateRoom,
         deleteRoom,
         syncLocalCampusesToBackend,
+        // offline building sync helpers
+        syncPendingBuildings: flushPendingBuildingOps,
+        pendingBuildingOpsCount: pendingBuildingOps.length,
       }}
     >
       {children}
