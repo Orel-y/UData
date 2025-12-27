@@ -9,9 +9,10 @@ interface CampusSectionProps {
   onUpdate: (id: number, campus: Omit<Campus, 'id'>) => void;
   onDelete: (id: number) => void;
   onNavigate?: (id: number) => void;
+  isAdmin?: boolean;
 }
 
-export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate }: CampusSectionProps) {
+export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,isAdmin }: CampusSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCampus, setEditingCampus] = useState<Campus | null>(null);
   const [formData, setFormData] = useState({ name: '', location: '' });
@@ -48,13 +49,17 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate 
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-gray-900 text-lg">Campuses</h2>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Campus
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Campus
+          </button>
+        ) : (
+          <div className="text-sm text-gray-500">Only admins can add campuses</div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -74,20 +79,26 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate 
                 <p className="text-gray-500">{campus.location}</p>
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={e => { e.stopPropagation(); openEditModal(campus); }}
-                  className="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Edit campus"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={e => { e.stopPropagation(); handleDelete(campus.id); }}
-                  className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete campus"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {isAdmin ? (
+                  <>
+                    <button
+                      onClick={e => { e.stopPropagation(); openEditModal(campus); }}
+                      className="p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit campus"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(campus.id); }}
+                      className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete campus"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-400">No actions</div>
+                )}
               </div>
             </div>
           ))

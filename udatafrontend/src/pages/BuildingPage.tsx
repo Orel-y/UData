@@ -139,7 +139,7 @@ export default function BuildingPage() {
           {(!navigator.onLine && pendingBuildingOpsCount > 0) && (
             <div className="mt-3 inline-flex items-center gap-3 text-sm text-yellow-800 bg-yellow-50 px-3 py-2 rounded-md">
               <span className="font-medium">{pendingBuildingOpsCount} pending changes</span>
-              <span className="text-sm text-gray-600">Will sync when you reconnect</span>
+              <span className="text-sm text-gray-600"> Will sync when you reconnect</span>
             </div>
           )}
 

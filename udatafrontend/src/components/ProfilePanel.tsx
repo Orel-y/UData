@@ -15,13 +15,18 @@ export default function ProfilePanel() {
             className="rounded-sm"
           />
           <div className="font-semibold mt-1">{currentUser.username}</div>
-          <button
-            onClick={() => logout()}
-            className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-          >
-            Log out
-          </button>
           <div className="text-sm text-gray-600 mt-2">You have access to {currentUser.permittedCampusIds.length} campuses</div>
+          <div className="flex flex-col gap-2 mt-3 w-full">
+            {currentUser.isAdmin && (
+              <a href="/admin" className="text-sm text-blue-600 hover:underline">Admin panel</a>
+            )}
+            <button
+              onClick={() => logout()}
+              className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+            >
+              Log out
+            </button>
+          </div>
         </div>
       ) : (
         <div className="text-center">

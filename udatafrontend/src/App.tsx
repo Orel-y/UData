@@ -9,6 +9,7 @@ import CampusPage from './pages/CampusPage';
 import BuildingPage from './pages/BuildingPage';
 import RoomPage from './pages/RoomPage';
 import DashboardLayout from './components/DashboardLayout';
+import AdminPage from './pages/AdminPage';
 
 /* Types */
 export interface Campus {
@@ -59,6 +60,7 @@ export default function App() {
                 <Route path="/campuses" element={<CampusPage />} />
                 <Route path="/campuses/:campusId/buildings" element={<BuildingPage />} />
                 <Route path="/buildings/:buildingId/rooms" element={<RoomPage />} />
+                <Route path="/admin" element={<AdminPage />} />
               </Route>
             </Route>
           </Routes>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as api from '../api/api';
 import { Campus, Building, Room } from '../App';
+import { useAuth } from '../auth/useAuth';
 // lightweight op id generator (avoids adding a dependency)
 const makeOpId = () => `${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
 
@@ -196,27 +197,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const { currentUser } = useAuth();
+
   const addBuilding = async (building: Omit<Building, 'id'>) => {
+    // attach creator if present
+    const createdBy = currentUser?.id;
+
     // if offline, create a temporary local record and enqueue for later sync
     if (!navigator.onLine) {
       const tempId = Date.now() * -1; // negative temporary id
-      const local: Building = { id: tempId, ...building } as Building;
-      setBuildings(prev => [...prev, local]);
-      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: building, createdAt: Date.now() });
-      return local;
+      const local: Building & { createdBy?: number } = { id: tempId, ...building, createdBy } as any;
+      setBuildings(prev => [...prev, local as any]);
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: { ...building, createdBy }, createdAt: Date.now() });
+      return local as any;
     }
 
     try {
       const data = await api.addBuilding(building);
-      setBuildings(prev => [...prev, data]);
-      return data;
+      // preserve createdBy for frontend if set
+      const withCreator = createdBy ? { ...data, createdBy } : data;
+      setBuildings(prev => [...prev, withCreator as any]);
+      return withCreator as any;
     } catch (err) {
       console.warn('addBuilding failed, queuing op', err);
       const tempId = Date.now() * -1;
-      const local: Building = { id: tempId, ...building } as Building;
-      setBuildings(prev => [...prev, local]);
-      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: building, createdAt: Date.now() });
-      return local;
+      const local: Building & { createdBy?: number } = { id: tempId, ...building, createdBy } as any;
+      setBuildings(prev => [...prev, local as any]);
+      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: { ...building, createdBy }, createdAt: Date.now() });
+      return local as any;
     }
   };
 

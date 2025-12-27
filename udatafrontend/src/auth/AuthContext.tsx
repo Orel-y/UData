@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 
 export interface AuthUser {
   id: number;
+  email?: string;
   username: string;
   avatarUrl?: string;
+  isAdmin?: boolean;
   permittedCampusIds: number[];
 }
 
@@ -35,16 +37,38 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
             const email = (form?.email as string) || 'demo@local';
             const username = email.split('@')[0];
             // decide permitted campuses - demo: admin gets all, others get first 3
-            const permittedCampusIds = (email.includes('admin')) ? [4,5,6,7,8,9,10] : [4,5,6];
+            const isAdmin = email.includes('admin');
+            const permittedCampusIds = isAdmin ? [4,5,6,7,8,9,10] : [4,5,6];
+
+            // create or reuse a stored mock user so admin panel can show users
+            let id = Date.now();
+            try {
+              const storedUsersRaw = localStorage.getItem('uDataMockUsers');
+              const stored = storedUsersRaw ? JSON.parse(storedUsersRaw) : [];
+              const existing = stored.find((u:any) => u.email === email);
+              if (existing) id = existing.id;
+            } catch (e) { /* ignore */ }
 
             const mockUser: AuthUser = {
-              id: 1,
+              id,
+              email,
               username,
+              isAdmin,
               avatarUrl: `https://i.pravatar.cc/40?u=${encodeURIComponent(email)}`,
               permittedCampusIds,
             };
 
             try { localStorage.setItem('uDataUser', JSON.stringify(mockUser)); } catch {}
+            // ensure user is present in the mock users list
+            try {
+              const raw = localStorage.getItem('uDataMockUsers');
+              const arr = raw ? JSON.parse(raw) : [];
+              if (!arr.find((u:any) => u.email === email)) {
+                arr.push({ id: mockUser.id, email: mockUser.email, username: mockUser.username, isAdmin: mockUser.isAdmin, avatarUrl: mockUser.avatarUrl, permittedCampusIds: mockUser.permittedCampusIds });
+                localStorage.setItem('uDataMockUsers', JSON.stringify(arr));
+              }
+            } catch (e) { /* ignore */ }
+
             setCurrentUser(mockUser);
             setIsAuthenticated(true);
             navigate('/campuses');
