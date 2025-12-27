@@ -30,7 +30,7 @@ export default function LoginPage() {
         login(formData);
     }
   return (
-    <div className='block item-center justify-center max-w-md  mx-auto'>
+    <div className='block item-center justify-center max-w-md  mx-auto login'>
         <h3 className='text-center '>Welcome back</h3>
         <form onSubmit={(e)=>handleSubmit(e)}>
             <div className="m-4">

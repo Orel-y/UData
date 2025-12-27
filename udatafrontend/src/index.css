@@ -1284,5 +1284,12 @@ html {
     }
     main{
       padding: 0;
+      flex-direction: column;
+    }
+    .login{
+      margin-top: 14vh;
+    }
+    .login h3{
+      font-size: 30px;
     }
 }
