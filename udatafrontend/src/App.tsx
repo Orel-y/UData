@@ -3,11 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
 
 /* Pages */
+import AuthProvider from './auth/AuthContext';
+import ProtectedRoute from './auth/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
+import RegistrationPage from './pages/RegistrationPage';
 import CampusPage from './pages/CampusPage';
 import BuildingPage from './pages/BuildingPage';
 import RoomPage from './pages/RoomPage';
-import LoginPage from './pages/LoginPage';
-import RegistrationPage from './pages/RegistrationPage';
 
 /* Types */
 export interface Campus {
@@ -60,6 +62,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+    <AuthProvider >
       <div className="min-h-screen bg-gray-50">
         <nav className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,45 +79,48 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path='/register' element={<RegistrationPage />} />
-            <Route
-              path="/campuses"
-              element={
-                <CampusPage
-                  campuses={campuses}
-                  onAdd={addCampus}
-                  onUpdate={updateCampus}
-                  onDelete={deleteCampus}
-                />
-              }
-            />
-            <Route
-              path="/campuses/:campusId/buildings"
-              element={
-                <BuildingPage
-                  campuses={campuses}
-                  buildings={buildings}
-                  onAdd={addBuilding}
-                  onUpdate={updateBuilding}
-                  onDelete={deleteBuilding}
-                />
-              }
-            />
-            <Route
-              path="/buildings/:buildingId/rooms"
-              element={
-                <RoomPage
-                  campuses={campuses}
-                  buildings={buildings}
-                  rooms={rooms}
-                  onAdd={addRoom}
-                  onUpdate={updateRoom}
-                  onDelete={deleteRoom}
-                />
-              }
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/campuses"
+                element={
+                  <CampusPage
+                    campuses={campuses}
+                    onAdd={addCampus}
+                    onUpdate={updateCampus}
+                    onDelete={deleteCampus}
+                  />
+                }
+              />
+              <Route
+                path="/campuses/:campusId/buildings"
+                element={
+                  <BuildingPage
+                    campuses={campuses}
+                    buildings={buildings}
+                    onAdd={addBuilding}
+                    onUpdate={updateBuilding}
+                    onDelete={deleteBuilding}
+                  />
+                }
+              />
+              <Route
+                path="/buildings/:buildingId/rooms"
+                element={
+                  <RoomPage
+                    campuses={campuses}
+                    buildings={buildings}
+                    rooms={rooms}
+                    onAdd={addRoom}
+                    onUpdate={updateRoom}
+                    onDelete={deleteRoom}
+                  />
+                }
+              />
+              </Route>
           </Routes>
         </main>
       </div>
+    </AuthProvider>
     </BrowserRouter>
   );
 }

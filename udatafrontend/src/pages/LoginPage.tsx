@@ -1,23 +1,41 @@
-import React, { ChangeEvent, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom';
+import { FormEvent, useState } from 'react'
+import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
 
 export default function LoginPage() {
+    const {isAuthenticated,login} = useAuth();
+
+    if(isAuthenticated){
+        // route to home page
+    }
+
+    const [error,setError] = useState(0); //here if email is empty error=1, if password is empty error=2 and if both error=3
     const [formData,setFormData] = useState({
         email: "",
         password: ""    
     });
    
-    const handleSubmit = ()=>{
-        if(formData.email=="" || formData.password==""){
-            alert("Please fill all credentials first");
+    const handleSubmit = (e:FormEvent)=>{
+        e.preventDefault();
+        if(formData.email=="" && formData.password==""){
+            setError(3);
             return;
         }
-        alert(JSON.stringify(formData));
+        if(formData.email==""){
+            setError(1);
+            return;
+        }
+        if(formData.password==""){
+            setError(2);
+            return;
+        }
+        login(formData);
+        setError(0);
     }
   return (
     <div className='block item-center justify-center max-w-md  mx-auto'>
         <h3 className='text-center '>Welcome back</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e)=>handleSubmit(e)}>
             <div className="m-4">
                 <label 
                     htmlFor='email'
@@ -26,13 +44,17 @@ export default function LoginPage() {
                     id='email'
                     type='email'
                     onChange={(e)=>setFormData({...formData,email:e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className={(error==1 || error==3 ? 
+                            "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} />
             </div>
             <div className="m-4">
                 <label htmlFor='email'>Password</label>
                 <input type='password' 
                     onChange={(e)=>setFormData({...formData,password:e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    className={(error==2 || error==3 ? 
+                            "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} />
             </div>
             <div className="m-4">
                 <button
