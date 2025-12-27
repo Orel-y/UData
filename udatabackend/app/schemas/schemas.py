@@ -77,7 +77,6 @@ class CampusWithBuildings(CampusRead):
 
 
 #-----------------------------------------------------------------#
-
 class RoomBase(BaseModel):
     building_id: int
     room_number: str

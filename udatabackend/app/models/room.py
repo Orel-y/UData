@@ -3,11 +3,11 @@ from sqlalchemy import (
     String, Enum, Integer, ForeignKey, UniqueConstraint, JSON
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.core.database import Base
+from app.core.base import BaseModel
 from app.models.enums import RoomStatus, RoomType
 from app.models.mixins import AuditableMixin
 
-class Room(Base, AuditableMixin):
+class Room(BaseModel, AuditableMixin):
     __tablename__ = "room"
     __table_args__ = (
         UniqueConstraint("building_id", "code"),
@@ -35,6 +35,6 @@ class Room(Base, AuditableMixin):
         Enum(RoomStatus), default=RoomStatus.AVAILABLE
     )
 
-    metadata: Mapped[dict | None] = mapped_column(JSON)
+    meta_info: Mapped[dict | None] = mapped_column(JSON)
 
     building = relationship("Building", back_populates="rooms")

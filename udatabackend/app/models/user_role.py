@@ -1,8 +1,8 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from app.core.database import Base
+from app.core.base import BaseModel
 
-class UserRole(Base):
+class UserRole(BaseModel):
     __tablename__ = "user_roles"
 
     user_id: Mapped[str] = mapped_column(

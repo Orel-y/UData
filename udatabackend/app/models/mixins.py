@@ -1,30 +1,33 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
 
 class AuditableMixin:
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
-    )
+    @declared_attr
+    def created_at(cls) -> Mapped[datetime]:
+        return mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
-    updated_at: Mapped[datetime | None] = mapped_column(
-        DateTime, onupdate=datetime.utcnow
-    )
+    @declared_attr
+    def updated_at(cls) -> Mapped[datetime | None]:
+        return mapped_column(DateTime, onupdate=datetime.utcnow)
 
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
+    @declared_attr
+    def deleted_at(cls) -> Mapped[datetime | None]:
+        return mapped_column(DateTime)
 
-    created_by_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    @declared_attr
+    def created_by_id(cls) -> Mapped[uuid.UUID | None]:
+        return mapped_column(ForeignKey("users.id"), nullable=True)
 
-    updated_by_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("users.id"), nullable=True
-    )
+    @declared_attr
+    def updated_by_id(cls) -> Mapped[uuid.UUID | None]:
+        return mapped_column(ForeignKey("users.id"), nullable=True)
 
-    created_by = relationship(
-        "User", foreign_keys=[created_by_id], lazy="joined"
-    )
-    updated_by = relationship(
-        "User", foreign_keys=[updated_by_id], lazy="joined"
-    )
+    @declared_attr
+    def created_by(cls):
+        return relationship("User", foreign_keys=[cls.created_by_id], lazy="joined")
+
+    @declared_attr
+    def updated_by(cls):
+        return relationship("User", foreign_keys=[cls.updated_by_id], lazy="joined")
