@@ -44,6 +44,9 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,
       onDelete(id);
     }
   };
+  const handleCampusClick = (campus: Campus) => {
+    // navigate(`/campus/`+campus.id);
+  };
 
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

@@ -73,8 +73,15 @@ export function BuildingSection({
     }
   };
 
+  const handleBuildingClick = (building: BuildingType)=>{
+    navigate(`building/${building.id}`);
+  }
+
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div>
+        <h2 className='font-lm font-bold'><b>Campus:</b> {campus.name}</h2><br/>
+      </div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">

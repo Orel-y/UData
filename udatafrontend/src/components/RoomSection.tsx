@@ -104,6 +104,8 @@ export function RoomSection({
 
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <span><b>Campus: </b>{campus?.name}</span><br/>
+      <span><b>Building: </b>{building?.name}</span><br/><br/>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
