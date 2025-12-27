@@ -4,15 +4,6 @@ import { Room, Building, Campus } from '../App';
 import { RoomSection } from '../components/RoomSection';
 import { useData } from '../context/DataContext';
 
-interface Props {
-  rooms: Room[];
-  buildings: Building[];
-  campuses: Campus[];
-  onAdd: (room: Omit<Room, 'id'>) => void;
-  onUpdate: (id: number, room: Omit<Room, 'id'>) => void;
-  onDelete: (id: number) => void;
-}
-
 export default function RoomPage() {
   const { buildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
@@ -40,7 +31,7 @@ export default function RoomPage() {
   const [building, setBuilding] = useState<Building | undefined>(
     contextBuildings.find(b => b.id === buildingIdNumber)
   );
-  const [rooms, setRooms] = useState<Room[]>(initialRooms);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

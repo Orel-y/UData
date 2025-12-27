@@ -8,6 +8,7 @@ import RegistrationPage from './pages/RegistrationPage';
 import CampusPage from './pages/CampusPage';
 import BuildingPage from './pages/BuildingPage';
 import RoomPage from './pages/RoomPage';
+import DashboardLayout from './components/DashboardLayout';
 
 /* Types */
 export interface Campus {
@@ -49,14 +50,16 @@ export default function App() {
           </div>
         </nav>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path='/register' element={<RegistrationPage />} />
             <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
                 <Route path="/campuses" element={<CampusPage />} />
                 <Route path="/campuses/:campusId/buildings" element={<BuildingPage />} />
                 <Route path="/buildings/:buildingId/rooms" element={<RoomPage />} />
+              </Route>
             </Route>
           </Routes>
         </main>

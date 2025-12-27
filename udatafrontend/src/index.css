@@ -539,9 +539,16 @@
   .max-w-md {
     max-width: var(--container-md);
   }
+  .bg-red-600{
+    background-color: rgba(255, 0, 0, 0.767);
+    border-radius: 5px;
+  }
 
   .flex-1 {
     flex: 1;
+  }
+  .flex-col{
+    flex-direction: column;
   }
 
   .resize-none {

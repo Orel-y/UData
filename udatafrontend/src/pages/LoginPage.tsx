@@ -4,9 +4,7 @@ import { useAuth } from '../auth/useAuth';
 
 
 export default function LoginPage() {
-    const {isAuthenticated,login} = useAuth();
-    const navigate = useNavigate();
-
+    const {login} = useAuth();
 
     const [error,setError] = useState(0); //here if email is empty error=1, if password is empty error=2 and if both error=3
     const [formData,setFormData] = useState({
@@ -28,8 +26,8 @@ export default function LoginPage() {
             setError(2);
             return;
         }
-        login(formData);
         setError(0);
+        login(formData);
     }
   return (
     <div className='block item-center justify-center max-w-md  mx-auto'>

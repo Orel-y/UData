@@ -18,12 +18,51 @@ export interface DataContextValue {
   addRoom: (room: Omit<Room, 'id'>) => Promise<Room>;
   updateRoom: (id: number, room: Omit<Room, 'id'>) => Promise<Room>;
   deleteRoom: (id: number) => Promise<void>;
+  // Sync local campuses that are present in state but not on the backend
+  syncLocalCampusesToBackend: () => Promise<{ added: Campus[]; skipped: Campus[] } | null>;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [campuses, setCampuses] = useState<Campus[]>([]);
+  const [campuses, setCampuses] = useState<Campus[]>([
+  {
+    id: 4,
+    name: "Main Campus",
+    location: "Hawassa City, along the highway north of Hawassa"
+  },
+  {
+    id: 5,
+    name: "Institute of Technology (IoT) Campus",
+    location: "Adjacent to the Main Campus in Hawassa City"
+  },
+  {
+    id: 6,
+    name: "College of Agriculture Campus",
+    location: "Hawassa City"
+  },
+  {
+    id: 7,
+    name: "Medicine and Health Campus",
+    location: "Hawassa City (home to the Comprehensive Specialized Hospital)"
+  },
+  {
+    id: 8,
+    name: "Wondo Genet Campus",
+    location: "Wondo Genet town, ~25 km west of Hawassa"
+  },
+  {
+    id: 9,
+    name: "Awada Campus",
+    location: "Awada near Yirgalem, ~40 km south of Hawassa"
+  },
+  {
+    id: 10,
+    name: "Daye Campus",
+    location: "Bensa Daye area, ~125 km south of Hawassa"
+  }
+]
+);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
 
@@ -68,6 +107,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = await api.addCampus(campus);
     setCampuses(prev => [...prev, data]);
     return data;
+  };
+
+  const syncLocalCampusesToBackend = async () => {
+    try {
+      const remote = await api.fetchCampuses();
+      const remoteSet = new Set(remote.map(r => `${r.name}:::${r.location ?? ''}`));
+      const toSync = campuses.filter(c => !remoteSet.has(`${c.name}:::${c.location ?? ''}`));
+
+      const added: Campus[] = [];
+      for (const local of toSync) {
+        try {
+          // post to backend and get canonical campus back
+          const created = await api.addCampus({ name: local.name, location: local.location });
+          // replace the temporary/local entry (matching by name+location OR id) with the created one
+          setCampuses(prev => prev.map(p => (p.id === local.id || (p.name === local.name && p.location === local.location) ? created : p)));
+          added.push(created);
+        } catch (err) {
+          console.error('Failed to add campus during sync:', local, err);
+        }
+      }
+
+      const skipped = campuses.filter(c => remoteSet.has(`${c.name}:::${c.location ?? ''}`));
+      return { added, skipped };
+    } catch (err) {
+      console.error('Error syncing campuses:', err);
+      return null;
+    }
   };
 
   const updateCampus = async (id: number, campus: Omit<Campus, 'id'>) => {
@@ -121,8 +187,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // fetch initial campuses on mount
-    fetchCampuses().catch(err => console.error('Failed to fetch campuses', err));
+    // fetchCampuses().catch(err => console.error('Failed to fetch campuses', err));
+    // instead of fetching campuses filter by the user's id from existing campuses data
+    // setCampuses(campuses)
   }, []);
 
   return (
@@ -143,6 +210,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addRoom,
         updateRoom,
         deleteRoom,
+        syncLocalCampusesToBackend,
       }}
     >
       {children}
