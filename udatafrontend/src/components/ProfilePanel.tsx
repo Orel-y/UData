@@ -1,12 +1,17 @@
-import React from 'react';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
+import { useState } from 'react';
 
 export default function ProfilePanel() {
   const { currentUser, logout } = useAuth();
+  const [showProfile,setShowProfile] = useState(
+    (window.innerWidth<840 ? false : true)
+  );
 
   return (
-    <div className="w-64 p-4 bg-white/80 rounded shadow">
+    <div className="rounded-lg shadow-sm border border-gray-200 p-6 profile">
       {currentUser ? (
+        (showProfile ? <>
         <div className="flex flex-col items-center gap-3">
           <img
             src={currentUser.avatarUrl}
@@ -26,8 +31,20 @@ export default function ProfilePanel() {
             >
               Log out
             </button>
+            <div className="closeProfile">
+                <X 
+                size={23} 
+                onClick={()=>setShowProfile(false)}/>
+            </div>
           </div>
         </div>
+        
+        </> : 
+        <div className="showProfile">
+            <Menu
+             size={34}
+             onClick={()=>setShowProfile(true)}/>
+        </div>)
       ) : (
         <div className="text-center">
           <div className="font-semibold">Not logged in</div>

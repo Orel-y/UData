@@ -23,8 +23,6 @@ export default function CampusPage() {
   const handleNavigate = (id: number) => navigate(`/campuses/${id}/buildings`);
 
   return (
-    <div>
-
       <CampusSection
         campuses={visibleCampuses}
         onAdd={addCampus}
@@ -33,6 +31,5 @@ export default function CampusPage() {
         onNavigate={handleNavigate}
         isAdmin={isAdmin}
       />
-    </div>
   );
 }

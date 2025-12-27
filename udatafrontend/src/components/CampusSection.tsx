@@ -97,7 +97,7 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,
                     </button>
                   </>
                 ) : (
-                  <div className="text-sm text-gray-400">No actions</div>
+                  ""
                 )}
               </div>
             </div>
