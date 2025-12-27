@@ -1,7 +1,25 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 
+#<-----------User Schema------------->
+class UserCreate(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: str
+    role: str
 
+class UserResponse(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    role: str
+    is_active: bool
+
+    class Config:
+        orm_mode = True
+
+
+#<-----------Campus Schema------------->
 class CampusBase(BaseModel):
     name: str
     location: Optional[str] = None
@@ -11,9 +29,12 @@ class CampusCreate(CampusBase):
 
 class CampusRead(CampusBase):
     id: int
+
     class Config:
         orm_mode = True
 
+
+#<-----------Building Schema------------->
 class BuildingNested(BaseModel):
     id: int
     name: str
@@ -25,7 +46,6 @@ class BuildingNested(BaseModel):
 class CampusWithBuildings(CampusRead):
     buildings: List[BuildingNested] = []
 
-#-----------------------------------------------------------------#
 
 class BuildingBase(BaseModel):
     name: str
@@ -85,3 +105,4 @@ class RoomNested(BaseModel):
 
 class BuildingWithRooms(BuildingRead):
     rooms: List[RoomNested] = []
+
