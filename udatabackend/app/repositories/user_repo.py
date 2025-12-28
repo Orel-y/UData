@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.repositories.base import BaseRepository
-
+from uuid import UUID
 
 class UserRepository(BaseRepository[User]):
     def __init__(self, session: AsyncSession):
@@ -18,6 +18,10 @@ class UserRepository(BaseRepository[User]):
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
+
+    async def get_by_id(self, user_id: UUID):
+        return await super().get_by_id(user_id)
+
     async def create_user(self, full_name: str, username: str, email: str, hashed_password: str, role: str):
         new_user = User(
             full_name=full_name,
@@ -31,3 +35,5 @@ class UserRepository(BaseRepository[User]):
         await self.session.commit()
         await self.session.refresh(new_user)
         return new_user
+
+

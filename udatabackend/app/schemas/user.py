@@ -20,4 +20,10 @@ class UserResponse(BaseSchema):
     email: str
     full_name: str | None
     status: UserStatus
-    roles: str
+    role: str
+
+    class Config:
+        from_attributes = True
+
+
+

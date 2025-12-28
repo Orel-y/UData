@@ -5,6 +5,9 @@ from app.core.database import get_session
 from app.repositories.user_repo import UserRepository
 from app.schemas.auth import LoginRequest, TokenResponse, RegisterRequest, RegisterResponse
 from app.services.user_service import UserService
+from app.schemas.user import UserResponse
+from app.auth.dependencies import get_current_user
+from app.models.user import User
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -33,6 +36,17 @@ async def login(payload: LoginRequest, session: AsyncSession = Depends(get_sessi
 
     access_token = create_access_token(subject=str(user.id))
     return TokenResponse(access_token=access_token)
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_my_profile(
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    repo = UserRepository(session)
+    service = UserService(repo)
+    return await service.get_profile(current_user.id)
+
 
 
 
