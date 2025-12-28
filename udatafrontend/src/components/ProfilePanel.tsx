@@ -1,6 +1,7 @@
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
 import { useState } from 'react';
+import profile from '../assets/image.png'
 
 export default function ProfilePanel() {
   const { currentUser, logout } = useAuth();
@@ -14,15 +15,14 @@ export default function ProfilePanel() {
         (showProfile ? <>
         <div className="flex flex-col items-center gap-3">
           <img
-            src={currentUser.avatarUrl}
+            src={profile}
             alt={currentUser.username}
             style={{ width: 130, height: 90, objectFit: 'cover' }}
             className="rounded-sm"
           />
           <div className="font-semibold mt-1">{currentUser.username}</div>
-          <div className="text-sm text-gray-600 mt-2">You have access to {currentUser.permittedCampusIds.length} campuses</div>
           <div className="flex flex-col gap-2 mt-3 w-full">
-            {currentUser.isAdmin && (
+            {currentUser.role=="ADMIN" && (
               <a href="/admin" className="text-sm text-blue-600 hover:underline">Admin panel</a>
             )}
             <button

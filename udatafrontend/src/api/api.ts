@@ -24,11 +24,37 @@ export interface CreateBuildingDTO {
 export interface ApiBuilding {
   code:string,
   id: string;
-  campus_id: number;
+  campus_id: string;
   name: string;
-  floor_count: number;
+  floors: number;
   status:BuildingStatus
   type:BuildingType
+}
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  email?: string;
+  full_name?: string;
+  status?: UserStatus;
+  role: string;
+}
+export enum UserStatus{
+    ACTIVE = "ACTIVE",
+    DISABLED = "DISABLED",
+    SUSPENDED = "SUSPENDED"
+}
+export enum Role{
+    ADMIN = "ADMIN",
+    DATA_MANAGER = "DATA_MANAGER",
+    VIEWER = "VIEWER"
+}
+
+
+// user
+export const getCurrentUser = async():Promise<AuthUser>=>{
+  const { data } = await api.get(`/auth/me`);
+  return data;
 }
 
 // Campuses
@@ -64,8 +90,9 @@ export const fetchBuildings = async (): Promise<Building[]> => {
   return data;
 };
 
+// updated to get building data with campus id
 export const fetchBuildingsWithRooms = async (campusId?: string): Promise<ApiBuilding[]> => {
-  const url = campusId ? `/buildings/nested?campus_id=${campusId}` : `/buildings/nested`;
+  const url = `/buildings/campus/${campusId}`;
   const { data } = await api.get(url);
   return data;
 };

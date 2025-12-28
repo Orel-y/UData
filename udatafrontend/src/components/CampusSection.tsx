@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, ToggleLeftIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Campus, CampusStatus } from '../App';
 import { Modal } from './Modal';
-import { Toggle } from './ui/toggle';
 import ToggleSwitch from './ToggleSwitch';
 
 interface CampusSectionProps {
   campuses: Campus[];
   onAdd: (campus: Omit<Campus, 'id'>) => void;
-  onUpdate: (id: number, campus: Omit<Campus, 'id'>) => void;
-  onDelete: (id: number) => void;
-  onNavigate?: (id: number) => void;
+  onUpdate: (id: string, campus: Omit<Campus, 'id'>) => void;
+  onDelete: (id: string) => void;
+  onNavigate?: (id: string) => void;
   isAdmin?: boolean;
 }
 export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,isAdmin }: CampusSectionProps) {
@@ -40,7 +39,7 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this campus?')) {
       onDelete(id);
     }

@@ -13,7 +13,7 @@ import AdminPage from './pages/AdminPage';
 
 /* Types */
 export interface Campus {
-  id: number;
+  id: string;
   code:string;
   name: string;
   address: string;

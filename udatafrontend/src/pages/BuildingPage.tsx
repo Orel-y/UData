@@ -61,30 +61,30 @@ export default function BuildingPage() {
     }).catch(err => console.error(err));
   }, [campusId]);
 
-  // useEffect(() => {
-  //   if (!campusId) return;
+  useEffect(() => {
+    if (!campusId) return;
 
-  //   setLoading(true);
-  //   fetchBuildingsWithRooms(campusId)
-  //     .then((data: ApiBuilding[]) => {
-  //     const mappedBuildings: Building[] = data.map(b => ({
-  //               code:b.code,
-  //               id: b.id,
-  //               campus_id: b.campus_id,
-  //               name: b.name,
-  //               floors: b.floors,
-  //               status:b.status,
-  //               type:b.type
-  //             }));
+    setLoading(true);
+    fetchBuildingsWithRooms(campusId)
+      .then((data: ApiBuilding[]) => {
+      const mappedBuildings: Building[] = data.map(b => ({
+                code:b.code,
+                id: b.id,
+                campus_id: b.campus_id,
+                name: b.name,
+                floors: b.floors,
+                status:b.status,
+                type:b.type
+              }));
         
-  //       setBuildings(mappedBuildings);
-  //     })
-  //     .catch(err => {
-  //       console.error('Error fetching buildings:', err);
-  //       setBuildings([]);
-  //     })
-  //     .finally(() => setLoading(false));
-  // }, [campusId]);
+        setBuildings(mappedBuildings);
+      })
+      .catch(err => {
+        console.error('Error fetching buildings:', err);
+        setBuildings([]);
+      })
+      .finally(() => setLoading(false));
+  }, [campusId]);
 
   const handleAdd = async (building: Omit<Building, 'id'>) => {
     try {

@@ -2,29 +2,10 @@ import React, { createContext, useState, useEffect } from "react";
 import { clearToken, isTokenValid, saveToken } from "./authStore";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { AuthUser, getCurrentUser } from "../api/api";
 
+const API_Base = "http://localhost:8000";
 
-export interface AuthUser {
-  id: number;
-  full_name?: string;
-  username: string;
-  email?: string;
-  hashedPassword?: string,
-  role: Role;
-  status?: UserStatus;
-  permittedCampusIds: number[];
-}
-
-export enum Role{
-    ADMIN = "ADMIN",
-    DATA_MANAGER = "DATA_MANAGER",
-    VIEWER = "VIEWER"
-}
-export enum UserStatus{
-    ACTIVE = "ACTIVE",
-    DISABLED = "DISABLED",
-    SUSPENDED = "SUSPENDED"
-}
 
 
 export interface AuthContextType {
@@ -47,7 +28,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
 
     const register = async (form: any)=>{
             try {
-              const data = await axios.post('http://localhost:8000/auth/register', form, {
+              const data = await axios.post(`${API_Base}/auth/register`, form, {
                                       headers: {
                                         'Content-Type': 'application/json',
                                       },
@@ -62,9 +43,10 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
         }
     const login = async (form: any)=>{
             try {
-              const response = await axios.post('http://localhost:8000/auth/login',form)
+              const response = await axios.post(`${API_Base}/auth/login`,form)
               const token = response.data.access_token;
                 saveToken(token);
+                setCurrentUser(await getCurrentUser());
                 setIsAuthenticated(true);
                 navigate('/campuses');
             } catch (error) {
@@ -79,12 +61,20 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
 
     // initialize auth state once on mount
     useEffect(()=>{
-        const valid = isTokenValid();
-        setIsAuthenticated(valid);
-        if (valid) {
-        //  auto route
+        const initialize = async()=>{
+          try{
+            setCurrentUser(await getCurrentUser());
+            setIsAuthenticated(true);
+            setIsInitializing(false);
+          }catch{
+            setIsAuthenticated(false);
+            setIsInitializing(true);
+            navigate('/');
+          }
+          
         }
-        setIsInitializing(false);
+
+        initialize();
     }, [])
 
     return (
