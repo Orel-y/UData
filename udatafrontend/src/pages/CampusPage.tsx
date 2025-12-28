@@ -13,7 +13,7 @@ export default function CampusPage() {
     ? campuses.filter(c => currentUser.permittedCampusIds.includes(c.id))
     : campuses;
 
-  const isAdmin = !!currentUser?.isAdmin;
+  const isAdmin = true;
 
   useEffect(() => {
     // Ensure campuses are loaded

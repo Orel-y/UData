@@ -28,7 +28,6 @@ export interface ApiBuilding {
   floor_count: number;
 }
 
-
 // Campuses
 export const fetchCampuses = async (): Promise<Campus[]> => {
   const { data } = await api.get(`/campuses/`);

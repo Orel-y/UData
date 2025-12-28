@@ -14,8 +14,15 @@ import AdminPage from './pages/AdminPage';
 /* Types */
 export interface Campus {
   id: number;
+  code:string;
   name: string;
-  location: string;
+  address: string;
+  status:CampusStatus;
+}
+
+export enum CampusStatus{
+   ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED"
 }
 
 export interface Building {
