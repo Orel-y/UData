@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import create_tables
 from app.routers.campus import router as campus_router  # import router
 from app.routers.auth import router as auth_router
-
+from app.routers.building import router as building_router
+from app.routers.room import router as room_router
 
 app = FastAPI(title="UData")
 
@@ -33,4 +34,6 @@ def home():
 
 app.include_router(auth_router)
 app.include_router(campus_router)
+app.include_router(building_router)
+app.include_router(room_router)
 

@@ -1,25 +1,45 @@
 from uuid import UUID
-from app.schemas.base import BaseSchema, AuditResponse
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
+
 from app.models.enums import BuildingStatus, BuildingType
 
-class BuildingCreate(BaseSchema):
-    campus_id: UUID
+
+class BuildingBase(BaseModel):
     code: str
     name: str
-    floors: int | None = None
+    floors: Optional[int] = None
     type: BuildingType = BuildingType.OTHER
+    status: BuildingStatus = BuildingStatus.ACTIVE
 
-class BuildingUpdate(BaseSchema):
-    name: str | None = None
-    floors: int | None = None
-    type: BuildingType | None = None
-    status: BuildingStatus | None = None
 
-class BuildingResponse(AuditResponse):
+class BuildingCreate(BuildingBase):
+    campus_id: UUID
+
+
+class BuildingUpdate(BaseModel):
+    code: Optional[str] = None
+    name: Optional[str] = None
+    floors: Optional[int] = None
+    type: Optional[BuildingType] = None
+    status: Optional[BuildingStatus] = None
+
+
+class BuildingResponse(BuildingBase):
     id: UUID
     campus_id: UUID
-    code: str
-    name: str
-    floors: int | None
-    type: BuildingType
-    status: BuildingStatus
+    created_at: datetime
+    updated_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+        orm_mode = True
+
+class BuildingDeleteResponse(BuildingResponse):
+    id: UUID
+    deleted_at: datetime
+
+    class Config:
+        orm_mode = True
