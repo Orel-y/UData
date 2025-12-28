@@ -15,7 +15,6 @@ class Campus(BaseModel, AuditableMixin):
     code: Mapped[str] = mapped_column(String(50), unique=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     address: Mapped[str | None] = mapped_column(String(255))
-
     status: Mapped[CampusStatus] = mapped_column(
         Enum(CampusStatus), default=CampusStatus.ACTIVE
     )
