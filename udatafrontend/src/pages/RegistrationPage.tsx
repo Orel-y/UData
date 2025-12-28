@@ -11,7 +11,7 @@ export default function RegistrationPage() {
         email: "",
         username:"",
         password: "",
-        role:"VIEWER"   
+        role:"ADMIN"   
     });
    
     const handleSubmit = (e:FormEvent)=>{

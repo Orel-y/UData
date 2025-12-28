@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect } from "react";
-import { clearToken, isTokenValid, saveToken } from "./authStore";
+import { clearToken, getToken, isTokenValid, saveToken } from "./authStore";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { AuthUser, getCurrentUser } from "../api/api";
+import { AuthUser, getCurrentUser, registerUser } from "../api/api";
 
 const API_Base = "http://localhost:8000";
 
@@ -28,13 +28,9 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
 
     const register = async (form: any)=>{
             try {
-              const data = await axios.post(`${API_Base}/auth/register`, form, {
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                      },
-                                      withCredentials: false,  // or true if your backend expects credentials
-                                    });
-                        return data;
+              const data = await registerUser(form);
+              console.log(data)
+              return data;
 
             } catch (error) {
               console.log("Registration error",error)

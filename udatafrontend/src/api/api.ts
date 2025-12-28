@@ -57,6 +57,12 @@ export const getCurrentUser = async():Promise<AuthUser>=>{
   return data;
 }
 
+export const registerUser = async(form:Omit<Omit<AuthUser,'status'>,'id'>)=>{
+  const { data } = await api.post(`/auth/register`,form);
+  console.log(data);
+  return data;
+}
+
 // Campuses
 export const fetchCampuses = async (): Promise<Campus[]> => {
   const { data } = await api.get(`/campuses/`);
