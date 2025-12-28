@@ -1253,6 +1253,14 @@ html {
   display: none;
   color: red;
 }
+.text-red{
+  color: red;
+  padding-left: 10px;
+}
+.text-green{
+  color: green;
+  padding-left: 10px;
+}
 @media (max-width:840px) {
     .profile{
       position: absolute;

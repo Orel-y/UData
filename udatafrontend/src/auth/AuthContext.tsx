@@ -12,7 +12,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isInitializing: boolean;
   currentUser?: AuthUser | null;
-  login: (form: any) => void;
+  login: (form: any) => Promise<boolean>;
   logout: () => void;
   register: (form: any)=>void;
 }
@@ -34,7 +34,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
                                       },
                                       withCredentials: false,  // or true if your backend expects credentials
                                     });
-              console.log(data);
+                        return data;
 
             } catch (error) {
               console.log("Registration error",error)
@@ -49,8 +49,10 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
                 // setCurrentUser(await getCurrentUser());
                 setIsAuthenticated(true);
                 navigate('/campuses');
+                return true;
             } catch (error) {
-              console.log("Login error",error)
+              // console.log("Login error",error);
+              return false;
             }
     }
     const logout = ()=>{

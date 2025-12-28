@@ -11,8 +11,11 @@ export default function LoginPage() {
         username: "",
         password: ""    
     });
+    const [showMsg,setShowMsg] = useState(false);
+    const [msg,setMsg] = useState("All fields are required")
    
-    const handleSubmit = (e:FormEvent)=>{
+    const handleSubmit = async(e:FormEvent)=>{
+        setShowMsg(true);
         e.preventDefault();
         if(formData.username=="" && formData.password==""){
             setError(3);
@@ -26,8 +29,15 @@ export default function LoginPage() {
             setError(2);
             return;
         }
-        setError(0);
-        login(formData);
+        const success = await login(formData);
+        if(success){
+            setError(0);
+            setMsg("Loging in...");
+            return
+        }else{
+            setError(5);
+            setMsg("No account found with those credentials.")
+        }
     }
   return (
     <div className='block item-center justify-center max-w-md  mx-auto login'>
@@ -61,6 +71,10 @@ export default function LoginPage() {
                     className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                     >Login</button>
             </div>
+            {showMsg && 
+                <div className= {error==0? "text-green":"text-red"}>
+                    {msg}
+                </div>}
             <div>
                 <p className='text-center'>Don't have account? <Link to="/register">Sign up</Link></p>
             </div>
