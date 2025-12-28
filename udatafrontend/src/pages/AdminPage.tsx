@@ -6,7 +6,7 @@ import { registerUser } from '../api/api';
 export default function AdminPage() {
   const { currentUser } = useAuth();
   const { buildings } = useData() as any;
-  const [msg,setMsg] = useState("a");
+  const [msg,setMsg] = useState("");
 
   // const [users, setUsers] = useState<AuthUser[]>([]);
   // const [selected, setSelected] = useState<AuthUser | null>(null);
@@ -48,9 +48,9 @@ export default function AdminPage() {
     setForm({ full_name: "", email: '', password:"", username: '', role: "VIEWER" });
   };
 
-  const buildingsForUser = (userId: number) => {
-    return (buildings || []).filter((b:any) => b.createdBy === userId);
-  };
+  // const buildingsForUser = (userId: number) => {
+  //   return (buildings || []).filter((b:any) => b.createdBy === userId);
+  // };
 
   return (
     <div className="max-w-7xl mx-auto py-6">
