@@ -28,7 +28,7 @@ async def login(payload: LoginRequest, session: AsyncSession = Depends(get_sessi
     repo = UserRepository(session)
     user = await repo.get_by_username(payload.username)
 
-    if not user or not verify_password(payload.password, user.password_hash):
+    if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(subject=str(user.id))
