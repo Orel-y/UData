@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BuildingSection } from '../components/BuildingSection';
-import { Building, BuildingType, Campus } from '../App';
+import { Building, Campus } from '../App';
 import { useData } from '../context/DataContext';
 import { ApiBuilding } from '../api/api';
 
@@ -11,12 +11,12 @@ export default function BuildingPage() {
   const campusId = params.campusId;
   const navigate = useNavigate();
 
-  const { campuses, fetchBuildingsWithRooms, addBuilding, updateBuilding, deleteBuilding, fetchCampuses, syncPendingBuildings, pendingBuildingOpsCount } = useData();
+  const { campuses, fetchBuildingsWithRooms, addBuilding, updateBuilding, deleteBuilding, fetchCampuses, } = useData();
 
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
   const [campus, setCampus] = useState<Campus | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
+  // const [isSyncing, setIsSyncing] = useState(false);
 
   // useEffect(() => {
   //   const onOnlineForUI = async () => {
@@ -136,7 +136,7 @@ export default function BuildingPage() {
           <h1 className="text-gray-900 text-2xl sm:text-3xl font-bold">{campus.name}</h1>
           <p className="text-gray-600 mt-1">Manage buildings under this campus</p>
 
-          {(!navigator.onLine && pendingBuildingOpsCount > 0) && (
+          {/* {(!navigator.onLine && pendingBuildingOpsCount > 0) && (
             <div className="mt-3 inline-flex items-center gap-3 text-sm text-yellow-800 bg-yellow-50 px-3 py-2 rounded-md">
               <span className="font-medium">{pendingBuildingOpsCount} pending changes</span>
               <span className="text-sm text-gray-600"> Will sync when you reconnect</span>
@@ -148,7 +148,7 @@ export default function BuildingPage() {
               <div className="h-4 w-4 border-2 border-gray-300 rounded-full animate-spin" />
               <span>Syncing changes…</span>
             </div>
-          )}
+          )} */}
         </div>
         <div className="mt-4 sm:mt-0">
           <button

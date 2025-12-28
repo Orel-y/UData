@@ -40,7 +40,7 @@ export default function LoginPage() {
             return
         }else{
             setError(5);
-            setMsg("No account found with those credentials.")
+            setMsg("Error occured while logging in..please try again")
             setShowMsg(true);
         }
     }
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 </div>}
             <div>
                 {/* <p className='text-center'>Don't have account? <Link to="/register">Sign up</Link></p> */}
-                <p className='text-right'><Link to="/">Forgot Password?</Link></p>
+                {/* <p className='text-right'><Link to="/">Forgot Password?</Link></p> */}
             </div>
         </form>
      </div>

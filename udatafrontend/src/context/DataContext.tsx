@@ -1,17 +1,17 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import * as api from '../api/api';
 import { Campus, Building, Room } from '../App';
 // lightweight op id generator (avoids adding a dependency)
 
 // Pending building operation stored when offline
-type PendingBuildingOp = {
-  opId: string;
-  type: 'add' | 'update' | 'delete';
-  tempId?: number; // used for adds before server assigns id
-  id?: number; // server id or eventual id
-  payload?: any; // the building data
-  createdAt: number;
-};
+// type PendingBuildingOp = {
+//   opId: string;
+//   type: 'add' | 'update' | 'delete';
+//   tempId?: number; // used for adds before server assigns id
+//   id?: number; // server id or eventual id
+//   payload?: any; // the building data
+//   createdAt: number;
+// };
 
 export interface DataContextValue {
   campuses: Campus[];

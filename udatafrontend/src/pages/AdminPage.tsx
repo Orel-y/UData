@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { useAuth } from '../auth/useAuth';
 import { useData } from '../context/DataContext';
-import { AuthUser, registerUser } from '../api/api';
+import { registerUser } from '../api/api';
 
 export default function AdminPage() {
   const { currentUser } = useAuth();
-  const { buildings, campuses } = useData() as any;
+  const { buildings } = useData() as any;
   const [msg,setMsg] = useState("a");
 
   // const [users, setUsers] = useState<AuthUser[]>([]);
-  const [selected, setSelected] = useState<AuthUser | null>(null);
+  // const [selected, setSelected] = useState<AuthUser | null>(null);
   const [form, setForm] = useState({
         full_name: "",
         email: "",
