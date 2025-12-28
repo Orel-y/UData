@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { AuthUser, getCurrentUser, registerUser } from "../api/api";
 
-const API_Base = "http://localhost:8000";
+const API_Base = "https://udata1.onrender.com";
 
 
 
