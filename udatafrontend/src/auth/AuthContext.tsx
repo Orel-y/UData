@@ -46,7 +46,6 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
     const navigate = useNavigate();
 
     const register = async (form: any)=>{
-            console.log('Auth.registraion called with', JSON.stringify(form));
             try {
               const data = await axios.post('http://localhost:8000/auth/register', form, {
                                       headers: {
@@ -62,7 +61,6 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
             return;
         }
     const login = async (form: any)=>{
-            console.log('Auth.login called with', JSON.stringify(form));
             try {
               const response = await axios.post('http://localhost:8000/auth/login',form)
               const token = response.data.access_token;
@@ -74,10 +72,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
             }
     }
     const logout = ()=>{
-        console.log("Auth.logout called");
         clearToken();
-        try { localStorage.removeItem('uDataUser'); } catch {}
-        setCurrentUser(null);
         setIsAuthenticated(false);
         navigate('/');
     }
@@ -87,10 +82,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
         const valid = isTokenValid();
         setIsAuthenticated(valid);
         if (valid) {
-          try {
-            const u = localStorage.getItem('uDataUser');
-            if (u) setCurrentUser(JSON.parse(u));
-          } catch (e) { console.error('Failed to parse stored user', e); }
+        //  auto route
         }
         setIsInitializing(false);
     }, [])

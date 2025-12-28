@@ -1,7 +1,18 @@
 import axios from 'axios';
 import { Campus, Building, Room } from '../App';
+import { getToken } from '../auth/authStore';
+
+
+const token = getToken();
 
 const API_BASE = 'http://localhost:8000';
+const api = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}` 
+  }
+});
 
 export interface CreateBuildingDTO {
   name: string;
@@ -20,40 +31,40 @@ export interface ApiBuilding {
 
 // Campuses
 export const fetchCampuses = async (): Promise<Campus[]> => {
-  const { data } = await axios.get(`${API_BASE}/campuses/`);
+  const { data } = await api.get(`/campuses/`);
   return data;
 };
 
 export const fetchCampusesWithBuildings = async (): Promise<Campus[]> => {
-  const { data } = await axios.get(`${API_BASE}/campuses/nested`);
+  const { data } = await api.get(`/campuses/nested`);
   return data;
 };
 
 export const addCampus = async (campus: Omit<Campus, 'id'>): Promise<Campus> => {
-  const { data } = await axios.post(`${API_BASE}/campuses/`, campus);
+  const { data } = await api.post(`/campuses/`, campus);
   return data;
 };
 
 export const updateCampus = async (id: number, campus: Omit<Campus, 'id'>): Promise<Campus> => {
-  const { data } = await axios.put(`${API_BASE}/campuses/${id}`, campus);
+  const { data } = await api.put(`/campuses/${id}`, campus);
   return data;
 };
 
 export const deleteCampus = async (id: number) => {
-  await axios.delete(`${API_BASE}/campuses/${id}`);
+  await api.delete(`/campuses/${id}`);
 };
 
 
 
 // Buildings
 export const fetchBuildings = async (): Promise<Building[]> => {
-  const { data } = await axios.get(`${API_BASE}/buildings/`);
+  const { data } = await api.get(`/buildings/`);
   return data;
 };
 
 export const fetchBuildingsWithRooms = async (campusId?: number): Promise<ApiBuilding[]> => {
-  const url = campusId ? `${API_BASE}/buildings/nested?campus_id=${campusId}` : `${API_BASE}/buildings/nested`;
-  const { data } = await axios.get(url);
+  const url = campusId ? `/buildings/nested?campus_id=${campusId}` : `/buildings/nested`;
+  const { data } = await api.get(url);
   return data;
 };
 
@@ -64,7 +75,7 @@ export const addBuilding = async ( building: Omit<Building, 'id'>): Promise<Buil
     floor_count: building.floorCount
   };
 
-  const { data } = await axios.post(`${API_BASE}/buildings/`, payload);
+  const { data } = await api.post(`/buildings/`, payload);
   return {
     id: data.id,
     campusId: data.campus_id,
@@ -81,7 +92,7 @@ export const updateBuilding = async (id: number, building: Omit<Building, 'id'>)
     floor_count: building.floorCount
   };
   
-  const { data } = await axios.put(`${API_BASE}/buildings/${id}`, building);
+  const { data } = await api.put(`/buildings/${id}`, building);
   return {
     id: data.id,
     campusId: data.campus_id,
@@ -91,32 +102,32 @@ export const updateBuilding = async (id: number, building: Omit<Building, 'id'>)
 };
 
 export const deleteBuilding = async (id: number) => {
-  await axios.delete(`${API_BASE}/buildings/${id}`);
+  await api.delete(`/buildings/${id}`);
 };
 
 // Rooms
 export const fetchRooms = async (): Promise<Room[]> => {
-  const { data } = await axios.get(`${API_BASE}/rooms/`);
+  const { data } = await api.get(`/rooms/`);
   return data;
 };
 
 export const fetchRoomsByBuilding = async (buildingId: number): Promise<Room[]> => {
-  const { data } = await axios.get(`${API_BASE}/rooms/`, {
+  const { data } = await api.get(`/rooms/`, {
     params: { building_id: buildingId }
   });
   return data;
 };
 
 export const addRoom = async (room: Omit<Room, 'id'>): Promise<Room> => {
-  const { data } = await axios.post(`${API_BASE}/rooms/`, room);
+  const { data } = await api.post(`/rooms/`, room);
   return data;
 };
 
 export const updateRoom = async (id: string, room: Omit<Room, 'id'>): Promise<Room> => {
-  const { data } = await axios.put(`${API_BASE}/rooms/${id}`, room);
+  const { data } = await api.put(`/rooms/${id}`, room);
   return data;
 };
 
 export const deleteRoom = async (id: number) => {
-  await axios.delete(`${API_BASE}/rooms/${id}`);
+  await api.delete(`/rooms/${id}`);
 };

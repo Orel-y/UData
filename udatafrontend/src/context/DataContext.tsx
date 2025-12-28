@@ -61,44 +61,7 @@ export interface DataContextValue {
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [campuses, setCampuses] = useState<Campus[]>([
-  {
-    id: 4,
-    name: "Main Campus",
-    location: "Hawassa City, along the highway north of Hawassa"
-  },
-  {
-    id: 5,
-    name: "Institute of Technology (IoT) Campus",
-    location: "Adjacent to the Main Campus in Hawassa City"
-  },
-  {
-    id: 6,
-    name: "College of Agriculture Campus",
-    location: "Hawassa City"
-  },
-  {
-    id: 7,
-    name: "Medicine and Health Campus",
-    location: "Hawassa City (home to the Comprehensive Specialized Hospital)"
-  },
-  {
-    id: 8,
-    name: "Wondo Genet Campus",
-    location: "Wondo Genet town, ~25 km west of Hawassa"
-  },
-  {
-    id: 9,
-    name: "Awada Campus",
-    location: "Awada near Yirgalem, ~40 km south of Hawassa"
-  },
-  {
-    id: 10,
-    name: "Daye Campus",
-    location: "Bensa Daye area, ~125 km south of Hawassa"
-  }
-]
-);
+  const [campuses, setCampuses] = useState<Campus[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
 

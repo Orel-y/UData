@@ -18,6 +18,7 @@ export const isTokenValid = ()=>{
     // localStorage.removeItem("uDataToken");
     // window.location.href = "/login";
     // }
+    return true;
 }
 
 export const getToken = ()=>{
