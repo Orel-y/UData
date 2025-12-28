@@ -122,9 +122,11 @@ export const addBuilding = async ( building: Omit<Building, 'id'>): Promise<Buil
 
 export const updateBuilding = async (id: string, building: Omit<Building, 'id'>): Promise<Building> => {
   const payload = {
+    code:building.code,
     name: building.name,
-    campus_id: building.campus_id,
-    floors: building.floors
+    floors: building.floors,
+    type:building.type,
+    status: building.status
   };
   
   const { data } = await api.put(`/buildings/${id}`, building);
@@ -139,9 +141,22 @@ export const updateBuilding = async (id: string, building: Omit<Building, 'id'>)
   };
 };
 
-export const deleteBuilding = async (id: number) => {
+export const deleteBuilding = async (id: string) => {
   await api.delete(`/buildings/${id}`);
 };
+
+export const getBuilding = async(id:string):Promise<Building>=>{
+  const {data} = await api.get(`/buildings/${id}`);
+   return {
+    code: data.code,
+    id: data.id,
+    campus_id: data.campus_id,
+    name: data.name,
+    floors: data.floors,
+    type: data.type,
+    status: data.status
+  };;
+}
 
 // Rooms
 export const fetchRooms = async (): Promise<Room[]> => {
@@ -150,9 +165,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
 };
 
 export const fetchRoomsByBuilding = async (buildingId: number): Promise<Room[]> => {
-  const { data } = await api.get(`/rooms/`, {
-    params: { building_id: buildingId }
-  });
+  const { data } = await api.get(`/rooms/building/${buildingId}`);
   return data;
 };
 

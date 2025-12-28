@@ -46,7 +46,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
               const response = await axios.post(`${API_Base}/auth/login`,form)
               const token = response.data.access_token;
                 saveToken(token);
-                setCurrentUser(await getCurrentUser());
+                // setCurrentUser(await getCurrentUser());
                 setIsAuthenticated(true);
                 navigate('/campuses');
             } catch (error) {

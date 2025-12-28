@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 import { Room, Building, Campus } from '../App';
 import { RoomSection } from '../components/RoomSection';
 import { useData } from '../context/DataContext';
+import { getBuilding } from '../api/api';
 
 export default function RoomPage() {
   const { buildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
-  const { fetchBuildingsWithRooms, fetchRoomsByBuilding, buildings: contextBuildings, campuses, addRoom, updateRoom, deleteRoom } = useData();
+  const {fetchRoomsByBuilding, campuses, addRoom, updateRoom, deleteRoom } = useData();
 
   // Ensure buildingId is a number or return early
   if (!buildingId) {
@@ -26,46 +27,31 @@ export default function RoomPage() {
     );
   }
 
-  const buildingIdNumber = Number(buildingId);
+  const buildingIdNumber = buildingId;
 
-  const [building, setBuilding] = useState<Building | undefined>(
-    contextBuildings.find(b => b.id === buildingIdNumber)
-  );
+  const [building, setBuilding] = useState<Building | undefined>();
+  const campus = building ? campuses.find(c => c.id === building.campus_id) : undefined;
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-
-    fetchBuildingsWithRooms()
-      .then(data => {
-        const mappedBuildings: Building[] = data.map(b => ({
-          id: b.id,
-          campusId: b.campus_id,
-          name: b.name,
-          floors: b.floors,
-        }));
-
-        const foundBuilding = mappedBuildings.find(b => b.id === buildingIdNumber);
-        if (!foundBuilding) {
-          setBuilding(undefined);
-          setRooms([]);
-        } else {
-          setBuilding(foundBuilding);
-         
-          return fetchRoomsByBuilding(buildingIdNumber);
+    const initialize = async()=>{
+        try {
+          setLoading(true);
+          setBuilding(await getBuilding(buildingIdNumber)) 
+          setRooms(await fetchRoomsByBuilding(buildingIdNumber));
+        } catch (error) {
+          
         }
-      })
-      .then(fetchedRooms => {
-        if (fetchedRooms) setRooms(fetchedRooms);
-      })
-      .catch(err => console.error('Error fetching building or rooms:', err))
-      .finally(() => setLoading(false));
+        finally{
+          setLoading(false);
+        }
+      }
+      initialize();
   }, [buildingIdNumber]);
 
-  const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;
 
-  if (!building && !loading) {
+  if (!buildingIdNumber && !loading) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-12">
         <p className="text-red-600 text-center">Building not found.</p>
@@ -103,8 +89,8 @@ export default function RoomPage() {
         <RoomSection
           selectedBuildingId={buildingIdNumber}
           rooms={rooms}
-          buildings={contextBuildings}
-          campuses={campuses}
+          building={building}
+          campus={campus}
           onAdd={addRoom}
           onUpdate={updateRoom}
           onDelete={deleteRoom}

@@ -65,7 +65,6 @@ export function BuildingSection({
       onUpdate(editingBuilding.id, formData);
     } else {
       onAdd(formData);
-      console.log(formData)
     }
     setIsModalOpen(false);
   };
@@ -87,7 +86,7 @@ export function BuildingSection({
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div>
-        <h2 className='font-lm font-bold'><b>Campus:</b> {campus.name}</h2><br/>
+        <h2 className='font-lm font-bold'><b>Campus:</b> {campus?.name}</h2><br/>
       </div>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">

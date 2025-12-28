@@ -49,12 +49,28 @@ export enum BuildingStatus{
 }
 
 export interface Room {
-  id: number;
-  buildingId: number;
-  roomNumber: string;
+  id: string;
+  code:string, // will be used for room number
+  name:string,
+  building_id: string;
+  floor:number,
   capacity: number;
-  roomType: string;
-  description: string;
+  type: RoomType;
+  status: RoomStatus;
+}
+export enum RoomType{
+    LECTURE_HALL = "LECTURE_HALL",
+    LAB = "LAB",
+    OFFICE = "OFFICE",
+    STORAGE = "STORAGE",
+    AUDITORIUM = "AUDITORIUM",
+    OTHER = "OTHER"
+}
+export enum RoomStatus{
+    AVAILABLE = "AVAILABLE",
+    OCCUPIED = "OCCUPIED",
+    MAINTENANCE = "MAINTENANCE",
+    RETIRED = "RETIRED"
 }
 
 export default function App() {
