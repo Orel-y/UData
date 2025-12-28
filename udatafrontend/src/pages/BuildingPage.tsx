@@ -57,44 +57,45 @@ export default function BuildingPage() {
     fetchCampuses().then(data => {
       const found = data.find(c => c.id == campusId);
       setCampus(found ?? null);
+      setLoading(false)
     }).catch(err => console.error(err));
   }, [campusId]);
 
-  useEffect(() => {
-    if (!campusId) return;
+  // useEffect(() => {
+  //   if (!campusId) return;
 
-    setLoading(true);
-    fetchBuildingsWithRooms(campusId)
-      .then((data: ApiBuilding[]) => {
-      const mappedBuildings: Building[] = data.map(b => ({
-                code:b.code,
-                id: b.id,
-                campus_id: b.campus_id,
-                name: b.name,
-                floorCount: b.floor_count,
-                status:b.status,
-                type:b.type
-              }));
+  //   setLoading(true);
+  //   fetchBuildingsWithRooms(campusId)
+  //     .then((data: ApiBuilding[]) => {
+  //     const mappedBuildings: Building[] = data.map(b => ({
+  //               code:b.code,
+  //               id: b.id,
+  //               campus_id: b.campus_id,
+  //               name: b.name,
+  //               floors: b.floors,
+  //               status:b.status,
+  //               type:b.type
+  //             }));
         
-        setBuildings(mappedBuildings);
-      })
-      .catch(err => {
-        console.error('Error fetching buildings:', err);
-        setBuildings([]);
-      })
-      .finally(() => setLoading(false));
-  }, [campusId]);
+  //       setBuildings(mappedBuildings);
+  //     })
+  //     .catch(err => {
+  //       console.error('Error fetching buildings:', err);
+  //       setBuildings([]);
+  //     })
+  //     .finally(() => setLoading(false));
+  // }, [campusId]);
 
   const handleAdd = async (building: Omit<Building, 'id'>) => {
     try {
-      const newBuilding = await addBuilding({ ...building, campusId });
+      const newBuilding = await addBuilding(building);
       setBuildings(prev => [...prev, newBuilding]);
     } catch (err) {
       console.error('Error adding building:', err);
     }
   };
 
-  const handleUpdate = async (id: number, building: Omit<Building, 'id'>) => {
+  const handleUpdate = async (id: string, building: Omit<Building, 'id'>) => {
     try {
       const updated = await updateBuilding(id, building);
       setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
@@ -103,7 +104,7 @@ export default function BuildingPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await deleteBuilding(id);
       setBuildings(prev => prev.filter(b => b.id !== id));

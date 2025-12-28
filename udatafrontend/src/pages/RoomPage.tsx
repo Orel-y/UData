@@ -43,7 +43,7 @@ export default function RoomPage() {
           id: b.id,
           campusId: b.campus_id,
           name: b.name,
-          floorCount: b.floor_count,
+          floors: b.floors,
         }));
 
         const foundBuilding = mappedBuildings.find(b => b.id === buildingIdNumber);

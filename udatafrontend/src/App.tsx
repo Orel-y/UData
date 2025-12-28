@@ -30,7 +30,7 @@ export interface Building {
   campus_id: string;
   code: string,
   name: string;
-  floorCount: number;
+  floors: number;
   type:BuildingType;
   status: BuildingStatus
 }

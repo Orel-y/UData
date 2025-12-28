@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Building } from 'lucide-react';
-import { Building as BuildingType, Campus } from '../App';
+import { BuildingStatus, BuildingType as BType, Building as BuildingType, Campus } from '../App';
 import { Modal } from './Modal';
 
 interface BuildingSectionProps {
@@ -26,9 +26,12 @@ export function BuildingSection({
   const [editingBuilding, setEditingBuilding] = useState<BuildingType | null>(null);
 
   const [formData, setFormData] = useState({
+    code:"B",
     name: '',
-    floorCount: 1,
-    campusId,
+    floors: 1,
+    campus_id:campusId,
+    status:BuildingStatus.ACTIVE,
+    type:BType.ACADEMIC
   });
 
   const filteredBuildings = buildings.filter(
@@ -38,16 +41,19 @@ export function BuildingSection({
   const campus = campuses.find(c => c.id === campusId);
 
   const openAddModal = () => {
-    setFormData({ name: '', floorCount: 1, campusId });
+    setFormData({code:"B", name: '', floors: 1, campus_id:campusId,status:BuildingStatus.ACTIVE,type:BType.ACADEMIC });
     setEditingBuilding(null);
     setIsModalOpen(true);
   };
 
   const openEditModal = (building: BuildingType) => {
     setFormData({
+      code:building.code,
       name: building.name,
-      floorCount: building.floorCount,
-      campusId: building.campusId,
+      floors: building.floors,
+      campus_id: building.campus_id,
+      status: building.status,
+      type: building.type
     });
     setEditingBuilding(building);
     setIsModalOpen(true);
@@ -59,6 +65,7 @@ export function BuildingSection({
       onUpdate(editingBuilding.id, formData);
     } else {
       onAdd(formData);
+      console.log(formData)
     }
     setIsModalOpen(false);
   };
@@ -130,7 +137,7 @@ export function BuildingSection({
                   onClick={() => navigate(`/buildings/${building.id}/rooms`)}
                 >
                   <td className="py-3 px-4 text-blue-600 hover:underline">{building.name}</td>
-                  <td className="py-3 px-4 text-gray-600">{building.floorCount}</td>
+                  <td className="py-3 px-4 text-gray-600">{building.floors}</td>
                   <td className="py-3 px-4">
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -187,15 +194,50 @@ export function BuildingSection({
             />
           </div>
           <div>
+            <label className="block text-sm text-gray-700 mb-1">Building Code</label>
+            <input
+              type="text"
+              value={formData.code}
+              onChange={e => setFormData({ ...formData, code: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              required
+            />
+          </div>
+          <div>
             <label className="block text-sm text-gray-700 mb-1">Floor Count</label>
             <input
               type="number"
               min={1}
-              value={formData.floorCount}
-              onChange={e => setFormData({ ...formData, floorCount: parseInt(e.target.value) || 1 })}
+              value={formData.floors}
+              onChange={e => setFormData({ ...formData, floors: parseInt(e.target.value) || 1 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Building Type</label>
+            <select
+              onChange={e =>setFormData({ ...formData, type: e.target.value as BType })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              required>
+                <option value={BType.ACADEMIC} >{BType.ACADEMIC}</option>
+                <option value={BType.ADMIN}>{BType.ADMIN}</option>
+                <option value={BType.DORM}>{BType.DORM}</option>
+                <option value={BType.LAB}>{BType.LAB}</option>
+                <option value={BType.LIBRARY}>{BType.LIBRARY}</option>
+                <option value={BType.OTHER}>{BType.OTHER}</option>
+              </select>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Building Status</label>
+            <select
+              onChange={e =>setFormData({ ...formData, status: e.target.value as BuildingStatus })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              required>
+                <option value={BuildingStatus.ACTIVE} >{BuildingStatus.ACTIVE}</option>
+                <option value={BuildingStatus.IN_MAINTENANCE}>{BuildingStatus.IN_MAINTENANCE}</option>
+                <option value={BuildingStatus.RETIRED}>{BuildingStatus.RETIRED}</option>
+              </select>
           </div>
           <div className="flex gap-3 pt-4">
             <button

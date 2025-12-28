@@ -74,7 +74,10 @@ export const addBuilding = async ( building: Omit<Building, 'id'>): Promise<Buil
   const payload = {
     name: building.name,
     campus_id: building.campus_id,
-    floor_count: building.floorCount
+    floors: building.floors,
+    code:building.code,
+    status:building.status,
+    type:building.type
   };
 
   const { data } = await api.post(`/buildings/`, payload);
@@ -83,7 +86,7 @@ export const addBuilding = async ( building: Omit<Building, 'id'>): Promise<Buil
     id: data.id,
     campus_id: data.campus_id,
     name: data.name,
-    floorCount: data.floor_count,
+    floors: data.floors,
     type: data.type,
     status: data.status
   };
@@ -94,7 +97,7 @@ export const updateBuilding = async (id: string, building: Omit<Building, 'id'>)
   const payload = {
     name: building.name,
     campus_id: building.campus_id,
-    floor_count: building.floorCount
+    floors: building.floors
   };
   
   const { data } = await api.put(`/buildings/${id}`, building);
@@ -103,7 +106,7 @@ export const updateBuilding = async (id: string, building: Omit<Building, 'id'>)
     id: data.id,
     campus_id: data.campus_id,
     name: data.name,
-    floorCount: data.floor_count,
+    floors: data.floors,
     status:data.status,
     type:data.type
   };

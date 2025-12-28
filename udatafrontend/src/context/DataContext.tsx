@@ -77,7 +77,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: b.id,
       campusId: b.campus_id,
       name: b.name,
-      floorCount: b.floor_count,
+      floors: b.floor_count,
     }));
     // If campusId specified, API returns buildings for that campus only, otherwise all
     if (campusId) {
@@ -152,43 +152,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [pendingBuildingOps, setPendingBuildingOps] = useState<PendingBuildingOp[]>(() => loadPendingBuildingOps());
 
-  const enqueuePendingBuildingOp = (op: PendingBuildingOp) => {
-    setPendingBuildingOps(prev => {
-      const next = [...prev, op];
-      savePendingBuildingOps(next);
-      return next;
-    });
-  };
+  // const enqueuePendingBuildingOp = (op: PendingBuildingOp) => {
+  //   setPendingBuildingOps(prev => {
+  //     const next = [...prev, op];
+  //     savePendingBuildingOps(next);
+  //     return next;
+  //   });
+  // };
 
   const { currentUser } = useAuth();
 
   const addBuilding = async (building: Omit<Building, 'id'>) => {
-    // attach creator if present
-    const createdBy = currentUser?.id;
 
-    // if offline, create a temporary local record and enqueue for later sync
-    if (!navigator.onLine) {
-      const tempId = Date.now() * -1; // negative temporary id
-      const local: Building & { createdBy?: number } = { id: tempId, ...building, createdBy } as any;
-      setBuildings(prev => [...prev, local as any]);
-      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: { ...building, createdBy }, createdAt: Date.now() });
-      return local as any;
-    }
-
-    try {
       const data = await api.addBuilding(building);
       // preserve createdBy for frontend if set
-      const withCreator = createdBy ? { ...data, createdBy } : data;
-      setBuildings(prev => [...prev, withCreator as any]);
-      return withCreator as any;
-    } catch (err) {
-      console.warn('addBuilding failed, queuing op', err);
-      const tempId = Date.now() * -1;
-      const local: Building & { createdBy?: number } = { id: tempId, ...building, createdBy } as any;
-      setBuildings(prev => [...prev, local as any]);
-      enqueuePendingBuildingOp({ opId: makeOpId(), type: 'add', tempId, payload: { ...building, createdBy }, createdAt: Date.now() });
-      return local as any;
-    }
+      setBuildings(prev => [...prev,data]);
+      return data;
+  
   };
 
   const updateBuilding = async (id: string, building: Omit<Building, 'id'>) => {
@@ -248,117 +228,118 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return data;
   };
 
-  const updateRoom = async (id: number, room: Omit<Room, 'id'>) => {
+  const updateRoom = async (id: string, room: Omit<Room, 'id'>) => {
     const updated = await api.updateRoom(id.toString(), room);
     setRooms(prev => prev.map(r => (r.id === id ? updated : r)));
     return updated;
   };
 
-  const deleteRoom = async (id: number) => {
+  const deleteRoom = async (id: string) => {
     await api.deleteRoom(id);
     setRooms(prev => prev.filter(r => r.id !== id));
+    return 
   };
 
-  const flushPendingBuildingOps = async () => {
-    const ops = loadPendingBuildingOps();
-    if (!ops || ops.length === 0) return { processed: 0 };
+  // const flushPendingBuildingOps = async () => {
+  //   const ops = loadPendingBuildingOps();
+  //   if (!ops || ops.length === 0) return { processed: 0 };
 
-    let remaining: PendingBuildingOp[] = [...ops];
-    const tempIdMap = new Map<number, number>(); // tempId -> realId
+  //   let remaining: PendingBuildingOp[] = [...ops];
+  //   const tempIdMap = new Map<number, number>(); // tempId -> realId
 
-    // Process adds first
-    for (const op of ops.filter(o => o.type === 'add')) {
-      try {
-        const { payload, tempId } = op;
-        const created = await api.addBuilding(payload);
-        // replace local temp in state
-        setBuildings(prev => prev.map(b => (b.id === tempId ? created : b)));
-        tempIdMap.set(tempId!, created.id);
-        // remove this op from remaining
-        remaining = remaining.filter(r => r.opId !== op.opId);
-        // update other ops that referenced tempId
-        remaining = remaining.map(r => {
-          if (r.tempId && r.tempId === tempId) {
-            return { ...r, id: created.id, tempId: undefined };
-          }
-          return r;
-        });
-      } catch (err) {
-        console.error('Failed to flush add op', op, err);
-        // likely still offline or server error - stop processing to avoid repeated failures
-        savePendingBuildingOps(remaining);
-        setPendingBuildingOps(remaining);
-        return { processed: ops.length - remaining.length };
-      }
-    }
+  //   // Process adds first
+  //   for (const op of ops.filter(o => o.type === 'add')) {
+  //     try {
+  //       const { payload, tempId } = op;
+  //       const created = await api.addBuilding(payload);
+  //       // replace local temp in state
+  //       setBuildings(prev => prev.map(b => (b.id === tempId ? created : b)));
+  //       tempIdMap.set(tempId!, created.id);
+  //       // remove this op from remaining
+  //       remaining = remaining.filter(r => r.opId !== op.opId);
+  //       // update other ops that referenced tempId
+  //       remaining = remaining.map(r => {
+  //         if (r.tempId && r.tempId === tempId) {
+  //           return { ...r, id: created.id, tempId: undefined };
+  //         }
+  //         return r;
+  //       });
+  //     } catch (err) {
+  //       console.error('Failed to flush add op', op, err);
+  //       // likely still offline or server error - stop processing to avoid repeated failures
+  //       savePendingBuildingOps(remaining);
+  //       setPendingBuildingOps(remaining);
+  //       return { processed: ops.length - remaining.length };
+  //     }
+  //   }
 
-    // Process updates
-    for (const op of remaining.filter(o => o.type === 'update')) {
-      try {
-        const idToUse = op.id ?? op.tempId;
-        if (!idToUse || (op.tempId && !tempIdMap.has(op.tempId))) {
-          // cannot process update if it references an add that failed to sync
-          continue;
-        }
-        const id = op.id ?? tempIdMap.get(op.tempId!);
-        const updated = await api.updateBuilding(id!, op.payload);
-        setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
-        remaining = remaining.filter(r => r.opId !== op.opId);
-      } catch (err) {
-        console.error('Failed to flush update op', op, err);
-        savePendingBuildingOps(remaining);
-        setPendingBuildingOps(remaining);
-        return { processed: ops.length - remaining.length };
-      }
-    }
+  //   // Process updates
+  //   for (const op of remaining.filter(o => o.type === 'update')) {
+  //     try {
+  //       const idToUse = op.id ?? op.tempId;
+  //       if (!idToUse || (op.tempId && !tempIdMap.has(op.tempId))) {
+  //         // cannot process update if it references an add that failed to sync
+  //         continue;
+  //       }
+  //       const id = op.id ?? tempIdMap.get(op.tempId!);
+  //       const updated = await api.updateBuilding(id!, op.payload);
+  //       setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
+  //       remaining = remaining.filter(r => r.opId !== op.opId);
+  //     } catch (err) {
+  //       console.error('Failed to flush update op', op, err);
+  //       savePendingBuildingOps(remaining);
+  //       setPendingBuildingOps(remaining);
+  //       return { processed: ops.length - remaining.length };
+  //     }
+  //   }
 
-    // Process deletes
-    for (const op of remaining.filter(o => o.type === 'delete')) {
-      try {
-        // if this delete references a tempId that was never created, just remove it
-        if (op.id && op.id < 0) {
-          // local-only; nothing to do
-          remaining = remaining.filter(r => r.opId !== op.opId);
-          continue;
-        }
-        const id = op.id ?? (op.tempId ? tempIdMap.get(op.tempId) : undefined);
-        if (!id) {
-          remaining = remaining.filter(r => r.opId !== op.opId);
-          continue;
-        }
-        await api.deleteBuilding(id);
-        setBuildings(prev => prev.filter(b => b.id !== id));
-        setRooms(prev => prev.filter(r => r.buildingId !== id));
-        remaining = remaining.filter(r => r.opId !== op.opId);
-      } catch (err) {
-        console.error('Failed to flush delete op', op, err);
-        savePendingBuildingOps(remaining);
-        setPendingBuildingOps(remaining);
-        return { processed: ops.length - remaining.length };
-      }
-    }
+  //   // Process deletes
+  //   for (const op of remaining.filter(o => o.type === 'delete')) {
+  //     try {
+  //       // if this delete references a tempId that was never created, just remove it
+  //       if (op.id && op.id < 0) {
+  //         // local-only; nothing to do
+  //         remaining = remaining.filter(r => r.opId !== op.opId);
+  //         continue;
+  //       }
+  //       const id = op.id ?? (op.tempId ? tempIdMap.get(op.tempId) : undefined);
+  //       if (!id) {
+  //         remaining = remaining.filter(r => r.opId !== op.opId);
+  //         continue;
+  //       }
+  //       await api.deleteBuilding(id);
+  //       setBuildings(prev => prev.filter(b => b.id !== id));
+  //       setRooms(prev => prev.filter(r => r.buildingId !== id));
+  //       remaining = remaining.filter(r => r.opId !== op.opId);
+  //     } catch (err) {
+  //       console.error('Failed to flush delete op', op, err);
+  //       savePendingBuildingOps(remaining);
+  //       setPendingBuildingOps(remaining);
+  //       return { processed: ops.length - remaining.length };
+  //     }
+  //   }
 
-    savePendingBuildingOps(remaining);
-    setPendingBuildingOps(remaining);
-    return { processed: ops.length - remaining.length };
-  };
+  //   savePendingBuildingOps(remaining);
+  //   setPendingBuildingOps(remaining);
+  //   return { processed: ops.length - remaining.length };
+  // };
 
   useEffect(() => {
     // try flushing pending ops when we become online
-    const onOnline = () => {
-      flushPendingBuildingOps().catch(err => console.error('Error flushing building ops on online', err));
-    };
+    // const onOnline = () => {
+    //   flushPendingBuildingOps().catch(err => console.error('Error flushing building ops on online', err));
+    // };
 
-    window.addEventListener('online', onOnline);
+    // window.addEventListener('online', onOnline);
 
     // try on mount if online
-    if (navigator.onLine) {
-      flushPendingBuildingOps().catch(err => console.error('Error flushing building ops on init', err));
-    }
+    // if (navigator.onLine) {
+    //   flushPendingBuildingOps().catch(err => console.error('Error flushing building ops on init', err));
+    // }
 
-    return () => {
-      window.removeEventListener('online', onOnline);
-    };
+    // return () => {
+    //   window.removeEventListener('online', onOnline);
+    // };
   }, []);
 
   return (
@@ -381,7 +362,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteRoom,
         syncLocalCampusesToBackend,
         // offline building sync helpers
-        syncPendingBuildings: flushPendingBuildingOps,
+        // syncPendingBuildings: flushPendingBuildingOps,
         pendingBuildingOpsCount: pendingBuildingOps.length,
       }}
     >
