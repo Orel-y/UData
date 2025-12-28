@@ -4,11 +4,12 @@ from sqlalchemy import select
 from app.models.campus import Campus
 from typing import Optional
 from uuid import UUID
+from app.repositories.base import BaseRepository
 
-class CampusRepository:
+class CampusRepository(BaseRepository[Campus]):
     def __init__(self, session: AsyncSession):
-        self.session = session
-        self.model = Campus
+        super().__init__(Campus, session)
+
 
     async def create(self, campus: Campus) -> Campus:
         self.session.add(campus)
@@ -16,8 +17,7 @@ class CampusRepository:
         await self.session.refresh(campus)
         return campus
 
-    async def get_by_id(self, campus_id: UUID) -> Optional[Campus]:
-        return await self.session.get(self.model, campus_id)
+
 
     async def get_by_code(self, code: str) -> Optional[Campus]:
         result = await self.session.execute(
@@ -25,17 +25,6 @@ class CampusRepository:
         )
         return result.scalars().first()
 
-    async def list_all(self):
-        stmt = select(Campus)
-        result = await self.session.execute(stmt)
-        return result.unique().scalars().all()
-
-    async def update(self, campus: Campus, data: dict) -> Campus:
-        for key, value in data.items():
-            setattr(campus, key, value)
-        await self.session.commit()
-        await self.session.refresh(campus)
-        return campus
 
     async def soft_delete(self, campus: Campus) -> Campus:
         from datetime import datetime

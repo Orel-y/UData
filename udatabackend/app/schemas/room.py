@@ -1,31 +1,49 @@
 from uuid import UUID
-from app.schemas.base import BaseSchema, AuditResponse
+from datetime import datetime
+from typing import Optional, Dict
+
+from pydantic import BaseModel
+
 from app.models.enums import RoomStatus, RoomType
 
-class RoomCreate(BaseSchema):
-    building_id: UUID
+
+class RoomBase(BaseModel):
     code: str
-    name: str | None = None
-    capacity: int | None = None
-    floor: int | None = None
+    name: Optional[str] = None
+    capacity: Optional[int] = None
+    floor: Optional[int] = None
     type: RoomType = RoomType.OTHER
-    metadata: dict | None = None
+    status: RoomStatus = RoomStatus.AVAILABLE
+    meta_info: Optional[Dict] = None
 
-class RoomUpdate(BaseSchema):
-    name: str | None = None
-    capacity: int | None = None
-    floor: int | None = None
-    type: RoomType | None = None
-    status: RoomStatus | None = None
-    metadata: dict | None = None
 
-class RoomResponse(AuditResponse):
+class RoomCreate(RoomBase):
+    building_id: UUID
+
+
+class RoomUpdate(BaseModel):
+    code: Optional[str] = None
+    name: Optional[str] = None
+    capacity: Optional[int] = None
+    floor: Optional[int] = None
+    type: Optional[RoomType] = None
+    status: Optional[RoomStatus] = None
+    meta_info: Optional[Dict] = None
+
+
+class RoomResponse(RoomBase):
     id: UUID
     building_id: UUID
-    code: str
-    name: str | None
-    capacity: int | None
-    floor: int | None
-    type: RoomType
-    status: RoomStatus
-    metadata: dict | None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
+class RoomDeleteResponse(RoomResponse):
+    deleted_at: datetime
+
+    class Config:
+        orm_mode = True

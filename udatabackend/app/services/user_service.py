@@ -2,7 +2,7 @@ from app.models.user import User
 from app.repositories.user_repo import UserRepository
 from app.auth.security import hash_password
 from fastapi import HTTPException, status
-
+from uuid import UUID
 
 class UserService:
     def __init__(self, user_repo: UserRepository):
@@ -31,3 +31,12 @@ class UserService:
             hashed_password,
             role
         )
+
+    async def get_profile(self, user_id: UUID) -> User:
+        user = await self.user_repo.get_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+        return user
