@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, DoorOpen } from 'lucide-react';
-import { Room, Building, Campus } from '../App';
+import { Room, Building, Campus, RoomType, RoomStatus } from '../App';
 import { Modal } from './Modal';
 
 interface RoomSectionProps {
+  selectedBuildingId:string,
   rooms: Room[];
-  buildings: Building[];
-  campuses: Campus[];
-  selectedBuildingId: number;
-  onAdd: (room: Omit<Room, 'id'>) => void;
-  onUpdate: (id: number, room: Omit<Room, 'id'>) => void;
-  onDelete: (id: number) => void;
+  building:Building | undefined;
+  campus: Campus | undefined;
+  onAdd: (room: Omit<Room, 'id'>) => Promise<Room>;
+  onUpdate: (id: string, room: Omit<Room, 'id'>) => Promise<Room>;
+  onDelete: (id: string) => void;
 }
 
 export function RoomSection({
-  rooms: initialRooms,
-  buildings,
-  campuses,
   selectedBuildingId,
+  rooms: initialRooms,
+  building,
+  campus,
   onAdd,
   onUpdate,
   onDelete,
@@ -29,6 +29,7 @@ export function RoomSection({
   const [rooms, setRooms] = useState<Room[]>([]);
 
   // Map API rooms to frontend Room type if needed
+<<<<<<< HEAD
   // useEffect(() => {
   //   setRooms(
   //     initialRooms.map(r => ({
@@ -37,16 +38,23 @@ export function RoomSection({
   //     }))
   //   );
   // }, [initialRooms]);
+=======
+  useEffect(() => {
+    setRooms(initialRooms)
+    }, [initialRooms]);
 
-  const building = buildings.find(b => b.id === selectedBuildingId);
-  const campus = building ? campuses.find(c => c.id === building.campusId) : undefined;
+>>>>>>> master
+
 
   const [formData, setFormData] = useState({
-    roomNumber: '',
-    capacity: 0,
-    roomType: '',
-    description: '',
-    buildingId: selectedBuildingId,
+    code:"", // will have the room number
+    name: 'room of building'+building?.name,
+    capacity: 45,
+    floor:1,
+    type: RoomType.LECTURE_HALL,
+    status:RoomStatus.AVAILABLE,
+    meta_info: {"additionalProp1":{}},
+    building_id: selectedBuildingId,
   });
 
   // Update formData buildingId when selectedBuildingId changes
@@ -54,15 +62,21 @@ export function RoomSection({
     setFormData(prev => ({ ...prev, buildingId: selectedBuildingId }));
   }, [selectedBuildingId]);
 
+<<<<<<< HEAD
   const filteredRooms =initialRooms;
 
+=======
+>>>>>>> master
   const openAddModal = () => {
     setFormData({
-      roomNumber: '',
-      capacity: 0,
-      roomType: '',
-      description: '',
-      buildingId: selectedBuildingId,
+      code: '',
+      name: 'room of building'+building?.name,
+      capacity: 45,
+      floor:1,
+      type: RoomType.LECTURE_HALL,
+      status: RoomStatus.AVAILABLE,
+      meta_info: {"additionalProp1":{}},
+      building_id: selectedBuildingId,
     });
     setEditingRoom(null);
     setIsModalOpen(true);
@@ -70,33 +84,34 @@ export function RoomSection({
 
   const openEditModal = (room: Room) => {
     setFormData({
-      roomNumber: room.roomNumber,
+      code: room.code,
+      name:room.name,
+      floor:room.floor,
       capacity: room.capacity,
-      roomType: room.roomType,
-      description: room.description,
-      buildingId: room.buildingId,
+      type: room.type as RoomType,
+      status: room.status as RoomStatus,
+      building_id: room.building_id,
+      meta_info: {"additionalProp1":{}},
     });
     setEditingRoom(room);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     if (editingRoom) {
-      onUpdate(editingRoom.id, formData);
+      const updated = await onUpdate(editingRoom.id, formData);
+      setRooms(prev => prev.map(r => (r.id === editingRoom.id ? updated : r)));
     } else {
-      onAdd(formData);
+      const newroom = await onAdd(formData);
       // Optimistically update the local state so new room shows immediately
-      setRooms(prev => [
-        ...prev,
-        { ...formData, id: Date.now() } as Room,
-      ]);
+      setRooms(prev => [...prev,newroom,]);
     }
     console.log(formData);
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this room?')) {
       onDelete(id);
       setRooms(prev => prev.filter(r => r.id !== id));
@@ -136,28 +151,28 @@ export function RoomSection({
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Room Number</th>
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Capacity</th>
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Room Type</th>
-              <th className="text-left py-3 px-4 text-gray-700 text-sm">Description</th>
+              <th className="text-left py-3 px-4 text-gray-700 text-sm">Status</th>
               <th className="text-right py-3 px-4 text-gray-700 text-sm">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredRooms.length === 0 ? (
+            {rooms.length === 0 ? (
               <tr>
                 <td colSpan={5} className="text-center py-8 text-gray-500">
                   No rooms found. Click “Add Room” to get started.
                 </td>
               </tr>
             ) : (
-              filteredRooms.map(room => (
+              rooms.map(room => (
                 <tr
                   key={room.id}
                   className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   onClick={() => navigate(`/rooms/${room.id}`)}
                 >
-                  <td className="py-3 px-4 text-blue-600 hover:underline">{room.roomNumber}</td>
+                  <td className="py-3 px-4 text-blue-600 hover:underline">{room.code}</td>
                   <td className="py-3 px-4 text-gray-600">{room.capacity}</td>
-                  <td className="py-3 px-4 text-gray-600">{room.roomType}</td>
-                  <td className="py-3 px-4 text-gray-600">{room.description}</td>
+                  <td className="py-3 px-4 text-gray-600">{room.type}</td>
+                  <td className="py-3 px-4 text-gray-600">{room.status}</td>
                   <td className="py-3 px-4">
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -199,8 +214,8 @@ export function RoomSection({
             <label className="block text-sm text-gray-700 mb-1">Room Number</label>
             <input
               type="text"
-              value={formData.roomNumber}
-              onChange={e => setFormData({ ...formData, roomNumber: e.target.value })}
+              value={formData.code}
+              onChange={e => setFormData({ ...formData, code: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               required
             />
@@ -218,23 +233,31 @@ export function RoomSection({
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Room Type</label>
-            <input
-              type="text"
-              value={formData.roomType}
-              onChange={e => setFormData({ ...formData, roomType: e.target.value })}
+            <select
+              value={formData.type}
+              onChange={e => setFormData({ ...formData, type: e.target.value as RoomType })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              required
-            />
+              required>
+                <option value={RoomType.AUDITORIUM}>{RoomType.AUDITORIUM}</option>
+                <option value={RoomType.LAB}>{RoomType.LAB}</option>
+                <option value={RoomType.LECTURE_HALL}>{RoomType.LECTURE_HALL}</option>
+                <option value={RoomType.OFFICE}>{RoomType.OFFICE}</option>
+                <option value={RoomType.STORAGE}>{RoomType.STORAGE}</option>
+                <option value={RoomType.OTHER}>{RoomType.OTHER}</option>
+              </select>
           </div>
           <div>
-            <label className="block text-sm text-gray-700 mb-1">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
+            <label className="block text-sm text-gray-700 mb-1">Status</label>
+            <select
+              value={formData.status}
+              onChange={e => setFormData({ ...formData, status: e.target.value as RoomStatus})}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-              rows={3}
-              required
-            />
+              required>
+                <option value={RoomStatus.AVAILABLE}>{RoomStatus.AVAILABLE}</option>
+                <option value={RoomStatus.MAINTENANCE}>{RoomStatus.MAINTENANCE}</option>
+                <option value={RoomStatus.OCCUPIED}>{RoomStatus.OCCUPIED}</option>
+                <option value={RoomStatus.RETIRED}>{RoomStatus.RETIRED}</option>
+              </select>
           </div>
           <div className="flex gap-3 pt-4">
             <button

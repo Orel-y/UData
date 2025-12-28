@@ -80,7 +80,7 @@ export default function AdminPage() {
                     <div key={b.id} className="border rounded p-3">
                       <div className="font-semibold">{b.name}</div>
                       <div className="text-sm text-gray-600">Campus: {campuses.find((c:any) => c.id === b.campusId)?.name ?? '—'}</div>
-                      <div className="text-sm text-gray-600">Floors: {b.floorCount}</div>
+                      <div className="text-sm text-gray-600">Floors: {b.floors}</div>
                     </div>
                   ))
                 )}

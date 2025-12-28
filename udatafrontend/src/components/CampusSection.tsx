@@ -1,30 +1,30 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { Campus } from '../App';
+import { Campus, CampusStatus } from '../App';
 import { Modal } from './Modal';
+import ToggleSwitch from './ToggleSwitch';
 
 interface CampusSectionProps {
   campuses: Campus[];
   onAdd: (campus: Omit<Campus, 'id'>) => void;
-  onUpdate: (id: number, campus: Omit<Campus, 'id'>) => void;
-  onDelete: (id: number) => void;
-  onNavigate?: (id: number) => void;
+  onUpdate: (id: string, campus: Omit<Campus, 'id'>) => void;
+  onDelete: (id: string) => void;
+  onNavigate?: (id: string) => void;
   isAdmin?: boolean;
 }
-
 export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,isAdmin }: CampusSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCampus, setEditingCampus] = useState<Campus | null>(null);
-  const [formData, setFormData] = useState({ name: '', location: '' });
+  const [formData, setFormData] = useState({ code:'',name: '', address: '',status:CampusStatus.ACTIVE });
 
   const openAddModal = () => {
-    setFormData({ name: '', location: '' });
+    setFormData({ code:'', name: '', address: '', status:CampusStatus.ACTIVE });
     setEditingCampus(null);
     setIsModalOpen(true);
   };
 
   const openEditModal = (campus: Campus) => {
-    setFormData({ name: campus.name, location: campus.location });
+    setFormData({ code:'', name: campus.name, address: campus.address,status: CampusStatus.ACTIVE });
     setEditingCampus(campus);
     setIsModalOpen(true);
   };
@@ -33,13 +33,13 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,
     e.preventDefault();
     if (editingCampus) {
       onUpdate(editingCampus.id, formData);
-    } else {
+    } else {  
       onAdd(formData);
     }
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this campus?')) {
       onDelete(id);
     }
@@ -79,7 +79,7 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,
             >
               <div>
                 <h2 className="text-blue-600 text-lg">{campus.name}</h2>
-                <p className="text-gray-500">{campus.location}</p>
+                <p className="text-gray-500">{campus.address}</p>
               </div>
               <div className="flex gap-2">
                 {isAdmin ? (
@@ -128,10 +128,23 @@ export function CampusSection({ campuses, onAdd, onUpdate, onDelete, onNavigate,
             <label className="block text-sm text-gray-700 mb-1">Location</label>
             <input
               type="text"
-              value={formData.location}
-              onChange={e => setFormData({ ...formData, location: e.target.value })}
+              value={formData.address}
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700 mb-1">Campus Code</label>
+            <input
+              type="text"
+              value={formData.code}
+              onChange={e => setFormData({ ...formData, code: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className='flex justify-between items-center'>
+            <label className="block text-sm text-gray-700 mb-1">Status</label>
+            <ToggleSwitch status={formData.status}/>
           </div>
           <div className="flex gap-3 pt-4">
             <button

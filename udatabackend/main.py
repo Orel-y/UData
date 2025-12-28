@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import create_tables
-from app.routers import campuses, buildings, rooms
+from app.routers.campus import router as campus_router  # import router
+from app.routers.auth import router as auth_router
+from app.routers.building import router as building_router
+from app.routers.room import router as room_router
 
 app = FastAPI(title="UData")
 
@@ -21,13 +24,16 @@ app.add_middleware(
 )
 
 @app.on_event("startup")
-def startup():
-    create_tables()
+async def startup():
+    await create_tables()
 
 @app.get("/")
 def home():
     return {"message": "API running"}
 
-app.include_router(campuses.router)
-app.include_router(buildings.router)
-app.include_router(rooms.router)
+
+app.include_router(auth_router)
+app.include_router(campus_router)
+app.include_router(building_router)
+app.include_router(room_router)
+

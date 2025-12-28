@@ -9,22 +9,18 @@ export default function CampusPage() {
   const { campuses, fetchCampuses, addCampus, updateCampus, deleteCampus, syncLocalCampusesToBackend } = useData();
   const { currentUser, logout } = useAuth();
 
-  const visibleCampuses = currentUser?.permittedCampusIds && currentUser.permittedCampusIds.length > 0
-    ? campuses.filter(c => currentUser.permittedCampusIds.includes(c.id))
-    : campuses;
-
-  const isAdmin = !!currentUser?.isAdmin;
+  const isAdmin = currentUser?.role=="ADMIN";
 
   useEffect(() => {
     // Ensure campuses are loaded
     fetchCampuses().catch(err => console.error('Error fetching campuses:', err));
   }, []);
 
-  const handleNavigate = (id: number) => navigate(`/campuses/${id}/buildings`);
+  const handleNavigate = (id: string) => navigate(`/campuses/${id}/buildings`);
 
   return (
       <CampusSection
-        campuses={visibleCampuses}
+        campuses={campuses}
         onAdd={addCampus}
         onUpdate={updateCampus}
         onDelete={deleteCampus}

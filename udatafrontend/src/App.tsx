@@ -13,25 +13,64 @@ import AdminPage from './pages/AdminPage';
 
 /* Types */
 export interface Campus {
-  id: number;
+  id: string;
+  code:string;
   name: string;
-  location: string;
+  address: string;
+  status:CampusStatus;
+}
+
+export enum CampusStatus{
+  ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED"
 }
 
 export interface Building {
-  id: number;
-  campusId: number;
+  id: string;
+  campus_id: string;
+  code: string,
   name: string;
-  floorCount: number;
+  floors: number;
+  type:BuildingType;
+  status: BuildingStatus
+}
+export enum BuildingType{
+    ACADEMIC = "ACADEMIC",
+    ADMIN = "ADMIN",
+    DORM = "DORM",
+    LIBRARY = "LIBRARY",
+    LAB = "LAB",
+    OTHER = "OTHER"
+}
+export enum BuildingStatus{
+    ACTIVE = "ACTIVE",
+    IN_MAINTENANCE = "IN_MAINTENANCE",
+    RETIRED = "RETIRED"
 }
 
 export interface Room {
-  id: number;
-  buildingId: number;
-  roomNumber: string;
+  id: string;
+  code:string, // will be used for room number
+  name:string,
+  building_id: string;
+  floor:number,
   capacity: number;
-  roomType: string;
-  description: string;
+  type: RoomType;
+  status: RoomStatus;
+}
+export enum RoomType{
+    LECTURE_HALL = "LECTURE_HALL",
+    LAB = "LAB",
+    OFFICE = "OFFICE",
+    STORAGE = "STORAGE",
+    AUDITORIUM = "AUDITORIUM",
+    OTHER = "OTHER"
+}
+export enum RoomStatus{
+    AVAILABLE = "AVAILABLE",
+    OCCUPIED = "OCCUPIED",
+    MAINTENANCE = "MAINTENANCE",
+    RETIRED = "RETIRED"
 }
 
 export default function App() {
