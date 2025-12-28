@@ -6,19 +6,19 @@ import { useAuth } from '../auth/useAuth';
 export default function LoginPage() {
     const {login} = useAuth();
 
-    const [error,setError] = useState(0); //here if email is empty error=1, if password is empty error=2 and if both error=3
+    const [error,setError] = useState(0); //here if username is empty error=1, if password is empty error=2 and if both error=3
     const [formData,setFormData] = useState({
-        email: "",
+        username: "",
         password: ""    
     });
    
     const handleSubmit = (e:FormEvent)=>{
         e.preventDefault();
-        if(formData.email=="" && formData.password==""){
+        if(formData.username=="" && formData.password==""){
             setError(3);
             return;
         }
-        if(formData.email==""){
+        if(formData.username==""){
             setError(1);
             return;
         }
@@ -35,15 +35,16 @@ export default function LoginPage() {
         <form onSubmit={(e)=>handleSubmit(e)}>
             <div className="m-4">
                 <label 
-                    htmlFor='email'
-                    className='mb-2'>Email</label>
+                    htmlFor='uusername'
+                    className='mb-2'>Username</label>
                 <input 
-                    id='email'
-                    type='email'
-                    onChange={(e)=>setFormData({...formData,email:e.target.value})}
+                    id='uusername'
+                    type='text'
+                    onChange={(e)=>setFormData({...formData,username:e.target.value})}
                     className={(error==1 || error==3 ? 
                             "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} />
+                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")}
+                        required />
             </div>
             <div className="m-4">
                 <label htmlFor='email'>Password</label>
@@ -51,7 +52,8 @@ export default function LoginPage() {
                     onChange={(e)=>setFormData({...formData,password:e.target.value})}
                     className={(error==2 || error==3 ? 
                             "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} />
+                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")}
+                        required/>
             </div>
             <div className="m-4">
                 <button

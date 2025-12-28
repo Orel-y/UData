@@ -1,29 +1,36 @@
-import {useState } from 'react'
+import {FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
 
 export default function RegistrationPage() {
+
+    const {register} = useAuth();
+
     const [formData,setFormData] = useState({
-        name: "",
+        full_name: "",
         email: "",
-        password: ""    
+        username:"",
+        password: "",
+        role:"VIEWER"   
     });
    
-    const handleSubmit = ()=>{
-        if(formData.email=="" || formData.name=="" || formData.password==""){
+    const handleSubmit = (e:FormEvent)=>{
+        e.preventDefault();
+        if(formData.email=="" || formData.full_name=="" || formData.password==""){
             alert("Please fill all credentials first");
             return;
         }
-        alert(JSON.stringify(formData));
+        register(formData);
     }
   return (
     <div className='block item-center justify-center max-w-md  mx-auto'>
         <h3 className='text-center'>Register to Udata</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e)=>handleSubmit(e)}>
             <div className="block m-4">
                 <label htmlFor='email'>Full Name</label>
                 <input 
                     type='text'
-                    onChange={(e)=>setFormData({...formData,name:e.target.value})}
+                    onChange={(e)=>setFormData({...formData,full_name:e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div className="m-4">
@@ -32,6 +39,12 @@ export default function RegistrationPage() {
                     type='email'
                     onChange={(e)=>setFormData({...formData,email:e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div className="m-4">
+                <label htmlFor='email'>User name</label>
+                <input type='text' 
+                    onChange={(e)=>setFormData({...formData,username:e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
             </div>
             <div className="m-4">
                 <label htmlFor='email'>Password</label>

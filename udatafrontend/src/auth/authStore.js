@@ -1,21 +1,29 @@
+// import * as jwt_decode_module from "jwt-decode";
+// const jwtDecode = jwt_decode_module.default;
 
-
-export const saveToken = (Token,expiresIn)=>{
-    const expiryTime = Date.now() + expiresIn * 1000;
-
+export const saveToken = (Token)=>{
     localStorage.setItem("uDataToken",Token);
-    localStorage.setItem("tokenExpiry",expiryTime);
 }
 
 export const isTokenValid = ()=>{
-    const token = localStorage.getItem("uDataToken");
-    const expiry = localStorage.getItem("tokenExpiry");
+    // const token = localStorage.getItem("uDataToken");
+    // const decoded = jwt_decode(token);
+    // const exp = decoded.exp;
+    // const now = Math.floor(Date.now() / 1000);
 
-    if (!token || !expiry) return false;
+    // if (!token) return false;
 
-    return Date.now() < Number(expiry);
+    // if (now > exp) {
+    // alert("Session expired. Please log in again.");
+    // localStorage.removeItem("uDataToken");
+    // window.location.href = "/login";
+    // }
 }
+
+export const getToken = ()=>{
+    return localStorage.getItem("uDataToken");
+}
+
 export const clearToken = ()=>{
     localStorage.removeItem("uDataToken");
-    localStorage.removeItem("tokenExpiry");
 }
