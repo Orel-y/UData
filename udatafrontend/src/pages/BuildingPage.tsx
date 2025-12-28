@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BuildingSection } from '../components/BuildingSection';
-import { Building, Campus } from '../App';
+import { Building, BuildingType, Campus } from '../App';
 import { useData } from '../context/DataContext';
+import { ApiBuilding } from '../api/api';
 
-interface ApiBuilding {
-  id: number;
-  campus_id: number;
-  name: string;
-  floor_count: number;
-}
 
 export default function BuildingPage() {
   const params = useParams<{ campusId: string }>();
-  const campusId = Number(params.campusId);
+  const campusId = params.campusId;
   const navigate = useNavigate();
 
   const { campuses, fetchBuildingsWithRooms, addBuilding, updateBuilding, deleteBuilding, fetchCampuses, syncPendingBuildings, pendingBuildingOpsCount } = useData();
@@ -23,44 +18,44 @@ export default function BuildingPage() {
   const [campus, setCampus] = useState<Campus | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    const onOnlineForUI = async () => {
-      if (pendingBuildingOpsCount > 0) {
-        setIsSyncing(true);
-        try {
-          await syncPendingBuildings();
-        } catch (err) {
-          console.error('Auto sync failed (UI handler):', err);
-        } finally {
-          setIsSyncing(false);
-        }
-      }
-    };
-    window.addEventListener('online', onOnlineForUI);
+  // useEffect(() => {
+  //   const onOnlineForUI = async () => {
+  //     if (pendingBuildingOpsCount > 0) {
+  //       setIsSyncing(true);
+  //       try {
+  //         await syncPendingBuildings();
+  //       } catch (err) {
+  //         console.error('Auto sync failed (UI handler):', err);
+  //       } finally {
+  //         setIsSyncing(false);
+  //       }
+  //     }
+  //   };
+  //   window.addEventListener('online', onOnlineForUI);
 
-    // If already online on mount and we have pending ops, show syncing briefly
-    if (navigator.onLine && pendingBuildingOpsCount > 0) {
-      (async () => {
-        setIsSyncing(true);
-        try {
-          await syncPendingBuildings();
-        } catch (err) {
-          console.error('Initial auto sync (UI handler) failed', err);
-        } finally {
-          setIsSyncing(false);
-        }
-      })();
-    }
+  //   // If already online on mount and we have pending ops, show syncing briefly
+  //   if (navigator.onLine && pendingBuildingOpsCount > 0) {
+  //     (async () => {
+  //       setIsSyncing(true);
+  //       try {
+  //         await syncPendingBuildings();
+  //       } catch (err) {
+  //         console.error('Initial auto sync (UI handler) failed', err);
+  //       } finally {
+  //         setIsSyncing(false);
+  //       }
+  //     })();
+  //   }
 
-    return () => window.removeEventListener('online', onOnlineForUI);
-  }, [pendingBuildingOpsCount, syncPendingBuildings]);
+  //   return () => window.removeEventListener('online', onOnlineForUI);
+  // }, [pendingBuildingOpsCount, syncPendingBuildings]);
 
   useEffect(() => {
     if (!campusId) return;
 
     // ensure campuses loaded
     fetchCampuses().then(data => {
-      const found = data.find(c => c.id === campusId);
+      const found = data.find(c => c.id == campusId);
       setCampus(found ?? null);
     }).catch(err => console.error(err));
   }, [campusId]);
@@ -71,12 +66,16 @@ export default function BuildingPage() {
     setLoading(true);
     fetchBuildingsWithRooms(campusId)
       .then((data: ApiBuilding[]) => {
-        const mappedBuildings: Building[] = data.map(b => ({
-          id: b.id,
-          campusId: b.campus_id,
-          name: b.name,
-          floorCount: b.floor_count,
-        }));
+      const mappedBuildings: Building[] = data.map(b => ({
+                code:b.code,
+                id: b.id,
+                campus_id: b.campus_id,
+                name: b.name,
+                floorCount: b.floor_count,
+                status:b.status,
+                type:b.type
+              }));
+        
         setBuildings(mappedBuildings);
       })
       .catch(err => {

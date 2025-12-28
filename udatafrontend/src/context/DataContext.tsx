@@ -40,17 +40,17 @@ export interface DataContextValue {
   buildings: Building[];
   rooms: Room[];
   fetchCampuses: () => Promise<Campus[]>;
-  fetchBuildingsWithRooms: (campusId?: number) => Promise<api.ApiBuilding[]>;
-  fetchRoomsByBuilding: (buildingId: number) => Promise<Room[]>;
+  fetchBuildingsWithRooms: (campusId?: string) => Promise<api.ApiBuilding[]>;
+  fetchRoomsByBuilding: (buildingId: string) => Promise<Room[]>;
   addCampus: (campus: Omit<Campus, 'id'>) => Promise<Campus>;
-  updateCampus: (id: number, campus: Omit<Campus, 'id'>) => Promise<Campus>;
-  deleteCampus: (id: number) => Promise<void>;
+  updateCampus: (id: string, campus: Omit<Campus, 'id'>) => Promise<Campus>;
+  deleteCampus: (id: string) => Promise<void>;
   addBuilding: (building: Omit<Building, 'id'>) => Promise<Building>;
-  updateBuilding: (id: number, building: Omit<Building, 'id'>) => Promise<Building>;
-  deleteBuilding: (id: number) => Promise<void>;
+  updateBuilding: (id: string, building: Omit<Building, 'id'>) => Promise<Building>;
+  deleteBuilding: (id: string) => Promise<void>;
   addRoom: (room: Omit<Room, 'id'>) => Promise<Room>;
-  updateRoom: (id: number, room: Omit<Room, 'id'>) => Promise<Room>;
-  deleteRoom: (id: number) => Promise<void>;
+  updateRoom: (id: string, room: Omit<Room, 'id'>) => Promise<Room>;
+  deleteRoom: (id: string) => Promise<void>;
   // Sync local campuses that are present in state but not on the backend
   syncLocalCampusesToBackend: () => Promise<{ added: Campus[]; skipped: Campus[] } | null>;
   // Offline building sync helpers
@@ -71,7 +71,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return data;
   };
 
-  const fetchBuildingsWithRooms = async (campusId?: number) => {
+  const fetchBuildingsWithRooms = async (campusId?: string) => {
     const data = await api.fetchBuildingsWithRooms(campusId);
     const mapped = data.map(b => ({
       id: b.id,
@@ -83,7 +83,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (campusId) {
       // merge/replace only buildings for that campus
       setBuildings(prev => {
-        const other = prev.filter(p => p.campusId !== campusId);
+        const other = prev.filter(p => p.campus_id !== campusId);
         return [...other, ...mapped];
       });
     } else {
@@ -92,7 +92,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return data;
   };
 
-  const fetchRoomsByBuilding = async (buildingId: number) => {
+  const fetchRoomsByBuilding = async (buildingId: string) => {
     const data = await api.fetchRoomsByBuilding(buildingId);
     // replace rooms for this building
     setRooms(prev => {
@@ -111,16 +111,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const syncLocalCampusesToBackend = async () => {
     try {
       const remote = await api.fetchCampuses();
-      const remoteSet = new Set(remote.map(r => `${r.name}:::${r.location ?? ''}`));
-      const toSync = campuses.filter(c => !remoteSet.has(`${c.name}:::${c.location ?? ''}`));
+      const remoteSet = new Set(remote.map(r => `${r.name}:::${r.address ?? ''}`));
+      const toSync = campuses.filter(c => !remoteSet.has(`${c.name}:::${c.address ?? ''}`));
 
       const added: Campus[] = [];
       for (const local of toSync) {
         try {
           // post to backend and get canonical campus back
-          const created = await api.addCampus({ name: local.name, location: local.location });
+          const created = await api.addCampus({ name: local.name, address: local.address });
           // replace the temporary/local entry (matching by name+location OR id) with the created one
-          setCampuses(prev => prev.map(p => (p.id === local.id || (p.name === local.name && p.location === local.location) ? created : p)));
+          setCampuses(prev => prev.map(p => (p.id === local.id || (p.name === local.name && p.address === local.address) ? created : p)));
           added.push(created);
         } catch (err) {
           console.error('Failed to add campus during sync:', local, err);
@@ -135,13 +135,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateCampus = async (id: number, campus: Omit<Campus, 'id'>) => {
+  const updateCampus = async (id: string, campus: Omit<Campus, 'id'>) => {
     const updated = await api.updateCampus(id, campus);
     setCampuses(prev => prev.map(c => (c.id === id ? updated : c)));
     return updated;
   };
 
-  const deleteCampus = async (id: number) => {
+  const deleteCampus = async (id: string) => {
     await api.deleteCampus(id);
     setCampuses(prev => prev.filter(c => c.id !== id));
     // remove buildings and rooms related to that campus
@@ -191,7 +191,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateBuilding = async (id: number, building: Omit<Building, 'id'>) => {
+  const updateBuilding = async (id: string, building: Omit<Building, 'id'>) => {
     // if the id is a temporary id (negative), just update local and enqueue
     if (id < 0 || !navigator.onLine) {
       setBuildings(prev => prev.map(b => (b.id === id ? { ...b, ...building } : b)));
@@ -211,7 +211,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const deleteBuilding = async (id: number) => {
+  const deleteBuilding = async (id: string) => {
     // if deleting a temporary (local-only) building, just remove it and drop any pending adds
     if (id < 0 || !navigator.onLine) {
       setBuildings(prev => prev.filter(b => b.id !== id));

@@ -21,15 +21,31 @@ export interface Campus {
 }
 
 export enum CampusStatus{
-   ACTIVE = "ACTIVE",
+  ACTIVE = "ACTIVE",
   ARCHIVED = "ARCHIVED"
 }
 
 export interface Building {
-  id: number;
-  campusId: number;
+  id: string;
+  campus_id: string;
+  code: string,
   name: string;
   floorCount: number;
+  type:BuildingType;
+  status: BuildingStatus
+}
+export enum BuildingType{
+    ACADEMIC = "ACADEMIC",
+    ADMIN = "ADMIN",
+    DORM = "DORM",
+    LIBRARY = "LIBRARY",
+    LAB = "LAB",
+    OTHER = "OTHER"
+}
+export enum BuildingStatus{
+    ACTIVE = "ACTIVE",
+    IN_MAINTENANCE = "IN_MAINTENANCE",
+    RETIRED = "RETIRED"
 }
 
 export interface Room {

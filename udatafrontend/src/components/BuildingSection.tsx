@@ -5,12 +5,12 @@ import { Building as BuildingType, Campus } from '../App';
 import { Modal } from './Modal';
 
 interface BuildingSectionProps {
-  campusId: number;
+  campusId: string;
   buildings: BuildingType[];
   campuses: Campus[];
   onAdd: (building: Omit<BuildingType, 'id'>) => void;
-  onUpdate: (id: number, building: Omit<BuildingType, 'id'>) => void;
-  onDelete: (id: number) => void;
+  onUpdate: (id: string, building: Omit<BuildingType, 'id'>) => void;
+  onDelete: (id: string) => void;
 }
 
 export function BuildingSection({
@@ -32,7 +32,7 @@ export function BuildingSection({
   });
 
   const filteredBuildings = buildings.filter(
-    building => building.campusId === campusId
+    building => building.campus_id === campusId
   );
 
   const campus = campuses.find(c => c.id === campusId);
@@ -63,7 +63,7 @@ export function BuildingSection({
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (
       confirm(
         'Are you sure you want to delete this building? All associated rooms will also be deleted.'

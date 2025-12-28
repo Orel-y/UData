@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Campus, Building, Room } from '../App';
+import { Campus, Building, Room, BuildingStatus, BuildingType } from '../App';
 import { getToken } from '../auth/authStore';
 
 
@@ -22,10 +22,13 @@ export interface CreateBuildingDTO {
 
 // api.ts
 export interface ApiBuilding {
-  id: number;
+  code:string,
+  id: string;
   campus_id: number;
   name: string;
   floor_count: number;
+  status:BuildingStatus
+  type:BuildingType
 }
 
 // Campuses
@@ -44,12 +47,12 @@ export const addCampus = async (campus: Omit<Campus, 'id'>): Promise<Campus> => 
   return data;
 };
 
-export const updateCampus = async (id: number, campus: Omit<Campus, 'id'>): Promise<Campus> => {
+export const updateCampus = async (id: string, campus: Omit<Campus, 'id'>): Promise<Campus> => {
   const { data } = await api.put(`/campuses/${id}`, campus);
   return data;
 };
 
-export const deleteCampus = async (id: number) => {
+export const deleteCampus = async (id: string) => {
   await api.delete(`/campuses/${id}`);
 };
 
@@ -61,7 +64,7 @@ export const fetchBuildings = async (): Promise<Building[]> => {
   return data;
 };
 
-export const fetchBuildingsWithRooms = async (campusId?: number): Promise<ApiBuilding[]> => {
+export const fetchBuildingsWithRooms = async (campusId?: string): Promise<ApiBuilding[]> => {
   const url = campusId ? `/buildings/nested?campus_id=${campusId}` : `/buildings/nested`;
   const { data } = await api.get(url);
   return data;
@@ -70,33 +73,39 @@ export const fetchBuildingsWithRooms = async (campusId?: number): Promise<ApiBui
 export const addBuilding = async ( building: Omit<Building, 'id'>): Promise<Building> => {
   const payload = {
     name: building.name,
-    campus_id: building.campusId,
+    campus_id: building.campus_id,
     floor_count: building.floorCount
   };
 
   const { data } = await api.post(`/buildings/`, payload);
   return {
+    code: data.code,
     id: data.id,
-    campusId: data.campus_id,
+    campus_id: data.campus_id,
     name: data.name,
     floorCount: data.floor_count,
+    type: data.type,
+    status: data.status
   };
 };
 
 
-export const updateBuilding = async (id: number, building: Omit<Building, 'id'>): Promise<Building> => {
+export const updateBuilding = async (id: string, building: Omit<Building, 'id'>): Promise<Building> => {
   const payload = {
     name: building.name,
-    campus_id: building.campusId,
+    campus_id: building.campus_id,
     floor_count: building.floorCount
   };
   
   const { data } = await api.put(`/buildings/${id}`, building);
   return {
+    code:data.code,
     id: data.id,
-    campusId: data.campus_id,
+    campus_id: data.campus_id,
     name: data.name,
     floorCount: data.floor_count,
+    status:data.status,
+    type:data.type
   };
 };
 
