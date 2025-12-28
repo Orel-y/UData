@@ -1,21 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/useAuth';
-import { getUsers, addUser, MockUser } from '../auth/userStore';
 import { useData } from '../context/DataContext';
+import { AuthUser, registerUser } from '../api/api';
 
 export default function AdminPage() {
   const { currentUser } = useAuth();
   const { buildings, campuses } = useData() as any;
 
-  const [users, setUsers] = useState<MockUser[]>([]);
-  const [selected, setSelected] = useState<MockUser | null>(null);
-  const [form, setForm] = useState({ email: '', username: '', isAdmin: false });
+  // const [users, setUsers] = useState<AuthUser[]>([]);
+  const [selected, setSelected] = useState<AuthUser | null>(null);
+  const [form, setForm] = useState({
+        full_name: "",
+        email: "",
+        username:"",
+        password: "",
+        role:"ADMIN"   
+    });
 
-  useEffect(() => {
-    setUsers(getUsers());
-  }, []);
+  //  const getUsers = ()=>{
+  //   }
 
-  if (!currentUser?.isAdmin) {
+  // useEffect(() => {
+  //   setUsers(getUsers());
+  // }, []);
+  const isAdmin = currentUser?.role=="ADMIN";
+  if (!isAdmin) {
     return (
       <div className="max-w-4xl mx-auto py-12 text-center">
         <h2 className="text-xl font-semibold">Unauthorized</h2>
@@ -24,11 +33,11 @@ export default function AdminPage() {
     );
   }
 
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async(e: React.FormEvent) => {
     e.preventDefault();
-    const u = addUser({ email: form.email, username: form.username, isAdmin: form.isAdmin, permittedCampusIds: [] });
-    setUsers(prev => [...prev, u]);
-    setForm({ email: '', username: '', isAdmin: false });
+    const u = await registerUser(form);
+    // setUsers(prev => [...prev, u]);
+    setForm({ full_name: "", email: '', password:"", username: '', role: "VIEWER" });
   };
 
   const buildingsForUser = (userId: number) => {
@@ -42,7 +51,7 @@ export default function AdminPage() {
         <div className="md:col-span-1 bg-white rounded-lg p-4 shadow">
           <h2 className="font-semibold mb-3">Users</h2>
           <ul className="space-y-2">
-            {users.map(u => (
+            {/* {users.map(u => (
               <li key={u.id}>
                 <button className={`w-full text-left px-3 py-2 rounded ${selected?.id === u.id ? 'bg-blue-50' : ''}`} onClick={() => setSelected(u)}>
                   <div className="flex items-center justify-between">
@@ -54,21 +63,23 @@ export default function AdminPage() {
                   </div>
                 </button>
               </li>
-            ))}
+            ))} */}
           </ul>
 
           <form onSubmit={handleAddUser} className="mt-4 space-y-3">
-            <input className="w-full px-3 py-2 border rounded my-2" placeholder="email" value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="Full name" value={form.full_name} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="email" type='email' value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="username" value={form.username} onChange={e => setForm(s => ({...s, username: e.target.value}))} required />
-            <label className="inline-flex items-center gap-2"><input type="checkbox" checked={form.isAdmin} onChange={e => setForm(s => ({...s, isAdmin: e.target.checked}))} /> Make admin</label>
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="password" value={form.password} onChange={e => setForm(s => ({...s, username: e.target.value}))} required />
+            <label className="inline-flex items-center gap-2"><input type="checkbox" checked={form.role=="ADMIN"} onChange={e => setForm(s => (e.target.checked ? {...s, role:"ADMIN"}: {...s, role:"VIEWER"}))} /> Make admin</label>
             <div className="flex gap-2">
-              <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded">Add user</button>
+              <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded" type='submit'>Add user</button>
             </div>
           </form>
         </div>
 
         <div className="md:col-span-2 bg-white rounded-lg p-4 shadow">
-          {selected ? (
+          {/* {selected ? (
             <div>
               <h3 className="text-lg font-semibold">{selected.username}'s buildings</h3>
               <p className="text-sm text-gray-500 mb-4">Showing buildings this user created (if any)</p>
@@ -88,7 +99,7 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="text-gray-500">Select a user to view their created buildings.</div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
