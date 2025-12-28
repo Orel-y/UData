@@ -6,6 +6,7 @@ import { AuthUser, registerUser } from '../api/api';
 export default function AdminPage() {
   const { currentUser } = useAuth();
   const { buildings, campuses } = useData() as any;
+  const [msg,setMsg] = useState("a");
 
   // const [users, setUsers] = useState<AuthUser[]>([]);
   const [selected, setSelected] = useState<AuthUser | null>(null);
@@ -34,8 +35,14 @@ export default function AdminPage() {
   }
 
   const handleAddUser = async(e: React.FormEvent) => {
+    setMsg("");
     e.preventDefault();
     const u = await registerUser(form);
+    if(u){
+      setMsg("User Added Successfully");
+    }else{
+      setMsg("Error adding user");
+    }
     // setUsers(prev => [...prev, u]);
     setForm({ full_name: "", email: '', password:"", username: '', role: "VIEWER" });
   };
@@ -49,9 +56,9 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1 bg-white rounded-lg p-4 shadow">
-          <h2 className="font-semibold mb-3">Users</h2>
+          {/* <h2 className="font-semibold mb-3">Users</h2>
           <ul className="space-y-2">
-            {/* {users.map(u => (
+            {users.map(u => (
               <li key={u.id}>
                 <button className={`w-full text-left px-3 py-2 rounded ${selected?.id === u.id ? 'bg-blue-50' : ''}`} onClick={() => setSelected(u)}>
                   <div className="flex items-center justify-between">
@@ -63,9 +70,9 @@ export default function AdminPage() {
                   </div>
                 </button>
               </li>
-            ))} */}
-          </ul>
-
+            ))}
+          </ul> */}
+            {msg&&<div className='text-center text-gray-600'>{msg}</div>}
           <form onSubmit={handleAddUser} className="mt-4 space-y-3">
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="Full name" value={form.full_name} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="email" type='email' value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
