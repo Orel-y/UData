@@ -36,6 +36,7 @@ export default function AdminPage() {
 
   const handleAddUser = async(e: React.FormEvent) => {
     setMsg("");
+    console.log(form)
     e.preventDefault();
     const u = await registerUser(form);
     if(u){
@@ -74,10 +75,10 @@ export default function AdminPage() {
           </ul> */}
             {msg&&<div className='text-center text-gray-600'>{msg}</div>}
           <form onSubmit={handleAddUser} className="mt-4 space-y-3">
-            <input className="w-full px-3 py-2 border rounded my-2" placeholder="Full name" value={form.full_name} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="Full name" value={form.full_name} onChange={e => setForm(s => ({...s, full_name: e.target.value}))} required />
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="email" type='email' value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="username" value={form.username} onChange={e => setForm(s => ({...s, username: e.target.value}))} required />
-            <input className="w-full px-3 py-2 border rounded my-2" placeholder="password" value={form.password} onChange={e => setForm(s => ({...s, username: e.target.value}))} required />
+            <input className="w-full px-3 py-2 border rounded my-2" placeholder="password" value={form.password} onChange={e => setForm(s => ({...s, password: e.target.value}))} required />
             <label className="inline-flex items-center gap-2"><input type="checkbox" checked={form.role=="ADMIN"} onChange={e => setForm(s => (e.target.checked ? {...s, role:"ADMIN"}: {...s, role:"VIEWER"}))} /> Make admin</label>
             <div className="flex gap-2">
               <button className="flex-1 px-3 py-2 bg-blue-600 text-white rounded" type='submit'>Add user</button>

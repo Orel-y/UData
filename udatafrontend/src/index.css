@@ -1256,7 +1256,9 @@ html {
 .rounded-4{
   border-radius: 4px;
 }
-
+.profile{
+  margin: 0 5px;
+}
 .showProfile{
   display: none;
 }
