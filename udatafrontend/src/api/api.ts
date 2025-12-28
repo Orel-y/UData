@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Campus, Building, Room } from '../App';
 
-const API_BASE = 'http://localhost:8000'; // adjust to your FastAPI URL
+const API_BASE = 'http://localhost:8000';
 
 export interface CreateBuildingDTO {
   name: string;
@@ -18,7 +18,7 @@ export interface ApiBuilding {
 }
 
 
-// --- Campuses ---
+// Campuses
 export const fetchCampuses = async (): Promise<Campus[]> => {
   const { data } = await axios.get(`${API_BASE}/campuses/`);
   return data;
@@ -45,7 +45,7 @@ export const deleteCampus = async (id: number) => {
 
 
 
-// --- Buildings ---
+// Buildings
 export const fetchBuildings = async (): Promise<Building[]> => {
   const { data } = await axios.get(`${API_BASE}/buildings/`);
   return data;
@@ -94,7 +94,7 @@ export const deleteBuilding = async (id: number) => {
   await axios.delete(`${API_BASE}/buildings/${id}`);
 };
 
-// --- Rooms ---
+// Rooms
 export const fetchRooms = async (): Promise<Room[]> => {
   const { data } = await axios.get(`${API_BASE}/rooms/`);
   return data;

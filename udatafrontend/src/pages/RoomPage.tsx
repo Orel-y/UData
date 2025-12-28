@@ -37,12 +37,11 @@ export default function RoomPage() {
   useEffect(() => {
     setLoading(true);
 
-    // Fetch all buildings and map to frontend type
     fetchBuildingsWithRooms()
       .then(data => {
         const mappedBuildings: Building[] = data.map(b => ({
           id: b.id,
-          campusId: b.campus_id, // API uses snake_case
+          campusId: b.campus_id,
           name: b.name,
           floorCount: b.floor_count,
         }));
@@ -53,7 +52,7 @@ export default function RoomPage() {
           setRooms([]);
         } else {
           setBuilding(foundBuilding);
-          // Fetch rooms for this building
+         
           return fetchRoomsByBuilding(buildingIdNumber);
         }
       })
@@ -102,7 +101,7 @@ export default function RoomPage() {
         <div className="text-center text-gray-500 py-8">Loading rooms...</div>
       ) : (
         <RoomSection
-          selectedBuildingId={buildingIdNumber} // guaranteed number
+          selectedBuildingId={buildingIdNumber}
           rooms={rooms}
           buildings={contextBuildings}
           campuses={campuses}

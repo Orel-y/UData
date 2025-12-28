@@ -1,35 +1,43 @@
-from typing import Generator
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from typing import AsyncGenerator
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncSession,
+    async_sessionmaker
+)
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
+from app.models.user import User
+from app.models.campus import Campus
+from app.models.building import Building
+from app.models.room import Room
+
+from app.core.base import BaseModel
+
 load_dotenv()
 
-from app.models.main_models import BaseModel, Campus, Building, Room
-
-_ = Campus, Building, Room
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(
+# IMPORTANT: async driver
+# example:
+# postgresql+asyncpg://user:pass@localhost/db
+engine = create_async_engine(
     DATABASE_URL,
     echo=True,
     future=True
 )
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
+AsyncSessionLocal = async_sessionmaker(
     bind=engine,
-    future=True
+    class_=AsyncSession,
+    expire_on_commit=False,
 )
 
-def get_session() -> Generator[Session, None, None]:
-    session = SessionLocal()
-    try:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
         yield session
-    finally:
-        session.close()
 
-def create_tables():
-    BaseModel.metadata.create_all(bind=engine)
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(BaseModel.metadata.create_all)
