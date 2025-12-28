@@ -1,6 +1,6 @@
-import { useParams, useNavigate, data } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Room, Building, Campus } from '../App';
+import { Room, Building } from '../App';
 import { RoomSection } from '../components/RoomSection';
 import { useData } from '../context/DataContext';
 import { getBuilding } from '../api/api';
@@ -35,38 +35,6 @@ export default function RoomPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-<<<<<<< HEAD
-    setLoading(true);
-    fetchRoomsByBuilding(buildingIdNumber)
-    .then(data=>{
-      setRooms(data)
-      setLoading(false)
-    })
-    // fetchBuildingsWithRooms()
-    //   .then(data => {
-    //     const mappedBuildings: Building[] = data.map(b => ({
-    //       id: b.id,
-    //       campusId: b.campus_id,
-    //       name: b.name,
-    //       floorCount: b.floor_count,
-    //     }));
-
-    //     const foundBuilding = mappedBuildings.find(b => b.id === buildingIdNumber);
-    //     if (!foundBuilding) {
-    //       setBuilding(undefined);
-    //       setRooms([]);
-    //     } else {
-    //       setBuilding(foundBuilding);
-         
-    //       return fetchRoomsByBuilding(buildingIdNumber);
-    //     }
-    //   })
-    //   .then(fetchedRooms => {
-    //     if (fetchedRooms) setRooms(fetchedRooms);
-    //   })
-    //   .catch(err => console.error('Error fetching building or rooms:', err))
-    //   .finally(() => setLoading(false));
-=======
     const initialize = async()=>{
         try {
           setLoading(true);
@@ -80,7 +48,6 @@ export default function RoomPage() {
         }
       }
       initialize();
->>>>>>> master
   }, [buildingIdNumber]);
 
 

@@ -29,21 +29,10 @@ export function RoomSection({
   const [rooms, setRooms] = useState<Room[]>([]);
 
   // Map API rooms to frontend Room type if needed
-<<<<<<< HEAD
-  // useEffect(() => {
-  //   setRooms(
-  //     initialRooms.map(r => ({
-  //       ...r,
-  //       buildingId: (r as any).buildingId ?? (r as any).building_id,
-  //     }))
-  //   );
-  // }, [initialRooms]);
-=======
   useEffect(() => {
     setRooms(initialRooms)
     }, [initialRooms]);
 
->>>>>>> master
 
 
   const [formData, setFormData] = useState({
@@ -62,11 +51,6 @@ export function RoomSection({
     setFormData(prev => ({ ...prev, buildingId: selectedBuildingId }));
   }, [selectedBuildingId]);
 
-<<<<<<< HEAD
-  const filteredRooms =initialRooms;
-
-=======
->>>>>>> master
   const openAddModal = () => {
     setFormData({
       code: '',
@@ -107,7 +91,6 @@ export function RoomSection({
       // Optimistically update the local state so new room shows immediately
       setRooms(prev => [...prev,newroom,]);
     }
-    console.log(formData);
     setIsModalOpen(false);
   };
 

@@ -179,11 +179,6 @@ export const updateRoom = async (id: string, room: Omit<Room, 'id'>): Promise<Ro
   return data;
 };
 
-export const deleteRoom = async (id: number) => {
-<<<<<<< HEAD
-  await axios.delete(`${API_BASE}/rooms/${id}`);
-};
-=======
+export const deleteRoom = async (id: string) => {
   await api.delete(`/rooms/${id}`);
 };
->>>>>>> master

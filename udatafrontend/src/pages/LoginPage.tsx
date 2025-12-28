@@ -1,5 +1,5 @@
-import { FormEvent, useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { FormEvent, useState } from 'react'
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 
 
@@ -15,28 +15,33 @@ export default function LoginPage() {
     const [msg,setMsg] = useState("All fields are required")
    
     const handleSubmit = async(e:FormEvent)=>{
-        setShowMsg(true);
+        setShowMsg(false);
         e.preventDefault();
         if(formData.username=="" && formData.password==""){
             setError(3);
+            setShowMsg(true);
             return;
         }
         if(formData.username==""){
             setError(1);
+            setShowMsg(true);
             return;
         }
         if(formData.password==""){
             setError(2);
+            setShowMsg(true);
             return;
         }
         const success = await login(formData);
         if(success){
             setError(0);
             setMsg("Loging in...");
+            setShowMsg(true);
             return
         }else{
             setError(5);
             setMsg("No account found with those credentials.")
+            setShowMsg(true);
         }
     }
   return (
@@ -53,14 +58,8 @@ export default function LoginPage() {
                     onChange={(e)=>setFormData({...formData,username:e.target.value})}
                     className={(error==1 || error==3 ? 
                             "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-<<<<<<< HEAD
-                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} 
-                    placeholder='youremail@gmail.com'
-                    required/>
-=======
                             : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")}
                         required />
->>>>>>> master
             </div>
             <div className="m-4">
                 <label htmlFor='email'>Password</label>
@@ -68,15 +67,8 @@ export default function LoginPage() {
                     onChange={(e)=>setFormData({...formData,password:e.target.value})}
                     className={(error==2 || error==3 ? 
                             "w-full px-3 py-2 border border-red-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-<<<<<<< HEAD
-                            : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")} 
-                    placeholder='....'
-                    required
-                    />
-=======
                             : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500")}
                         required/>
->>>>>>> master
             </div>
             <div className="m-4">
                 <button

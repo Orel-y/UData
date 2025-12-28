@@ -48,6 +48,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
                 saveToken(token);
                 // setCurrentUser(await getCurrentUser());
                 setIsAuthenticated(true);
+                setIsInitializing(false);
                 navigate('/campuses');
                 return true;
             } catch (error) {
