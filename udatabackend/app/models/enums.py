@@ -35,3 +35,8 @@ class RoomType(str, Enum):
     STORAGE = "STORAGE"
     AUDITORIUM = "AUDITORIUM"
     OTHER = "OTHER"
+
+class Role(str, Enum):
+    ADMIN = "ADMIN"
+    DATA_MANAGER = "DATA_MANAGER"
+    VIEWER = "VIEWER"
