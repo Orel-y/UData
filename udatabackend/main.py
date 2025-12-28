@@ -5,7 +5,6 @@ from app.routers.campus import router as campus_router  # import router
 from app.routers.auth import router as auth_router
 
 
-
 app = FastAPI(title="UData")
 
 origins = [
