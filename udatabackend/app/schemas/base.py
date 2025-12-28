@@ -11,3 +11,5 @@ class AuditResponse(BaseSchema):
     deleted_at: datetime | None
     created_by_id: UUID | None
     updated_by_id: UUID | None
+
+

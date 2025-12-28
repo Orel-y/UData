@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.repositories.base import BaseRepository
 
+
 class UserRepository(BaseRepository[User]):
     def __init__(self, session: AsyncSession):
         super().__init__(User, session)
@@ -16,3 +17,17 @@ class UserRepository(BaseRepository[User]):
         stmt = select(User).where(User.username == username, User.deleted_at.is_(None))
         result = await self.session.execute(stmt)
         return result.scalars().first()
+
+    async def create_user(self, full_name: str, username: str, email: str, hashed_password: str, role: str):
+        new_user = User(
+            full_name=full_name,
+            username=username,
+            email=email,
+            hashed_password=hashed_password,
+            role=role
+        )
+
+        self.session.add(new_user)
+        await self.session.commit()
+        await self.session.refresh(new_user)
+        return new_user

@@ -1,9 +1,9 @@
 import uuid
 from sqlalchemy import String, Enum, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.core.base import BaseModel
 from app.models.enums import BuildingStatus, BuildingType
 from app.models.mixins import AuditableMixin
+from app.core.base import BaseModel
 
 class Building(BaseModel, AuditableMixin):
     __tablename__ = "building"

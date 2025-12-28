@@ -1,14 +1,14 @@
 from uuid import UUID
 from pydantic import EmailStr
 from app.schemas.base import BaseSchema
-from app.schemas.role import RoleResponse
 from app.models.enums import UserStatus
 
 class UserCreate(BaseSchema):
     username: str
-    email: EmailStr
+    email: str
     password: str
     full_name: str | None = None
+    role_names: list[str]  # client sends role names
 
 class UserUpdate(BaseSchema):
     full_name: str | None = None
@@ -17,7 +17,7 @@ class UserUpdate(BaseSchema):
 class UserResponse(BaseSchema):
     id: UUID
     username: str
-    email: EmailStr
+    email: str
     full_name: str | None
     status: UserStatus
-    roles: list[RoleResponse]
+    roles: str
