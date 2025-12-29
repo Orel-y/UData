@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2, DoorOpen } from 'lucide-react';
 import { Room, Building, Campus, RoomType, RoomStatus } from '../App';
 import { Modal } from './Modal';
+import { AxiosError } from 'axios';
 
 interface RoomSectionProps {
   selectedBuildingId:string,
@@ -11,7 +12,7 @@ interface RoomSectionProps {
   campus: Campus | undefined;
   onAdd: (room: Omit<Room, 'id'>) => Promise<Room>;
   onUpdate: (id: string, room: Omit<Room, 'id'>) => Promise<Room>;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
 }
 
 export function RoomSection({
@@ -27,12 +28,13 @@ export function RoomSection({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [error,setError] = useState(false);
+  const [msg,setMsg] = useState("");
 
   // Map API rooms to frontend Room type if needed
   useEffect(() => {
     setRooms(initialRooms)
     }, [initialRooms]);
-
 
 
   const [formData, setFormData] = useState({
@@ -81,27 +83,65 @@ export function RoomSection({
     setIsModalOpen(true);
   };
 
+  const delay = async(s:number)=>{
+    await new Promise(res=>setTimeout(res,s*1000))
+  }
+  
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    if (editingRoom) {
-      const updated = await onUpdate(editingRoom.id, formData);
-      setRooms(prev => prev.map(r => (r.id === editingRoom.id ? updated : r)));
-    } else {
-      const newroom = await onAdd(formData);
-      // Optimistically update the local state so new room shows immediately
-      setRooms(prev => [...prev,newroom,]);
-    }
     setIsModalOpen(false);
+    if (editingRoom) {
+      try {
+          const updated = await onUpdate(editingRoom.id, formData);
+          setRooms(prev => prev.map(r => (r.id === editingRoom.id ? updated : r)));
+          setError(false)
+          setMsg("Room edition successful")
+      } catch (error) {
+        const err = error as AxiosError;
+        setError(true);
+        setMsg(err.response?.data.detail || `Error while editing room... check the room number`)
+      }finally{
+          await delay(3);
+          setMsg("")
+        }
+    } else {
+        try {
+          const newroom = await onAdd(formData);
+          setRooms(prev => [...prev,newroom,]);
+          setError(false)
+          setMsg("Room added successfully")
+        } catch (error) {
+          const err = error as AxiosError;
+          setError(true);
+          setMsg(err.response?.data.detail || "Error while adding room... room number can't be doublicated")
+        }finally{
+          await delay(3);
+          setMsg("")
+        }
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async(id: string) => {
     if (confirm('Are you sure you want to delete this room?')) {
-      onDelete(id);
-      setRooms(prev => prev.filter(r => r.id !== id));
+      try {
+        await onDelete(id);
+        setRooms(prev => prev.filter(r => r.id !== id));
+        setError(false);
+        setMsg("Room deleted successfully")
+      } catch (error) {
+          const err = error as AxiosError;
+          setError(true);
+          setMsg(err.response?.data.detail || "Error while deleting room")
+      }finally{
+          await delay(3);
+          setMsg("")
+        }
     }
   };
 
   return (
+    <>      
+      <div className={error==true?"text-center text-red":"text-center text-green"}>{msg}</div>
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <span><b>Campus: </b>{campus?.name}</span><br/>
       <span><b>Building: </b>{building?.name}</span><br/><br/>
@@ -260,5 +300,6 @@ export function RoomSection({
         </form>
       </Modal>
     </section>
+  </>
   );
 }

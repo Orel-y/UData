@@ -14,25 +14,18 @@ import { Campus, Building, Room } from '../App';
 
 export interface DataContextValue {
   campuses: Campus[];
-  rooms: Room[];
   fetchCampuses: () => Promise<Campus[]>;
   fetchBuildingsWithRooms: (campusId?: string) => Promise<api.ApiBuilding[]>;
   fetchRoomsByBuilding: (buildingId: string) => Promise<Room[]>;
   addCampus: (campus: Omit<Campus, 'id'>) => Promise<Campus>;
   updateCampus: (id: string, campus: Omit<Campus, 'id'>) => Promise<Campus>;
   deleteCampus: (id: string) => Promise<void>;
-  addRoom: (room: Omit<Room, 'id'>) => Promise<Room>;
-  updateRoom: (id: string, room: Omit<Room, 'id'>) => Promise<Room>;
-  deleteRoom: (id: string) => Promise<void>;
-  // Sync local campuses that are present in state but not on the backend
-  // Offline building sync helpers
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [campuses, setCampuses] = useState<Campus[]>([]);
-  const [rooms, setRooms] = useState<Room[]>([]);
 
   const fetchCampuses = async () => {
     const data = await api.fetchCampuses();
@@ -78,41 +71,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
 
-  const addRoom = async (room: Omit<Room, 'id'>) => {
-    const data = await api.addRoom(room);
-    setRooms(prev => [...prev, data]);
-    return data;
-  };
-
-  const updateRoom = async (id: string, room: Omit<Room, 'id'>) => {
-    const updated = await api.updateRoom(id.toString(), room);
-    setRooms(prev => prev.map(r => (r.id === id ? updated : r)));
-    return updated;
-  };
-
-  const deleteRoom = async (id: string) => {
-    await api.deleteRoom(id);
-    setRooms(prev => prev.filter(r => r.id !== id));
-    return 
-  };
-
-
   return (
     <DataContext.Provider
       value={{
         campuses,
-        rooms,
         fetchCampuses,
         fetchBuildingsWithRooms,
         fetchRoomsByBuilding,
         addCampus,
         updateCampus,
-        deleteCampus,
-        addRoom,
-        updateRoom,
-        deleteRoom,
-        // offline building sync helpers
-        // syncPendingBuildings: flushPendingBuildingOps,
+        deleteCampus
       }}
     >
       {children}

@@ -79,9 +79,6 @@ export function BuildingSection({
     }
   };
 
-  const handleBuildingClick = (building: BuildingType)=>{
-    navigate(`building/${building.id}`);
-  }
 
   return (
     <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

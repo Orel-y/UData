@@ -175,7 +175,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
   return data;
 };
 
-export const fetchRoomsByBuilding = async (buildingId: number): Promise<Room[]> => {
+export const fetchRoomsByBuilding = async (buildingId: string): Promise<Room[]> => {
   const { data } = await api.get(`/rooms/building/${buildingId}`);
   return data;
 };

@@ -1,14 +1,14 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, data } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Room, Building } from '../App';
 import { RoomSection } from '../components/RoomSection';
 import { useData } from '../context/DataContext';
-import { getBuilding } from '../api/api';
+import { addRoom, deleteRoom, fetchRoomsByBuilding, getBuilding, updateRoom } from '../api/api';
 
 export default function RoomPage() {
   const { buildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
-  const {fetchRoomsByBuilding, campuses, addRoom, updateRoom, deleteRoom } = useData();
+  const {campuses } = useData();
 
   // Ensure buildingId is a number or return early
   if (!buildingId) {
@@ -33,7 +33,7 @@ export default function RoomPage() {
   const campus = building ? campuses.find(c => c.id === building.campus_id) : undefined;
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const initialize = async()=>{
         try {
@@ -41,7 +41,7 @@ export default function RoomPage() {
           setBuilding(await getBuilding(buildingIdNumber)) 
           setRooms(await fetchRoomsByBuilding(buildingIdNumber));
         } catch (error) {
-          
+          console.log(error)
         }
         finally{
           setLoading(false);
@@ -50,6 +50,17 @@ export default function RoomPage() {
       initialize();
   }, [buildingIdNumber]);
 
+  useEffect(()=>{
+    if(!buildingIdNumber) return;
+    setLoading(true)
+    fetchRoomsByBuilding(buildingIdNumber)
+    .then(data=>{
+        new Promise(res=>setTimeout(res,4000))
+        setLoading(false)
+        setRooms(data)
+    }).catch(err=>console.log(err));
+  },[buildingIdNumber])
+  
 
   if (!buildingIdNumber && !loading) {
     return (
