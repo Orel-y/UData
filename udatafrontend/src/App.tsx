@@ -77,7 +77,6 @@ export default function App() {
 
   return (
     <BrowserRouter>
-    <AuthProvider >
       <div className="min-h-screen bg-gray-50">
         <nav className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,18 +93,21 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             {/* <Route path='/register' element={<RegistrationPage />} /> */}
-            <Route element={<ProtectedRoute />}>
-              <Route element={<DashboardLayout />}>
-                <Route path="/campuses" element={<CampusPage />} />
-                <Route path="/campuses/:campusId/buildings" element={<BuildingPage />} />
-                <Route path="/buildings/:buildingId/rooms" element={<RoomPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-              </Route>
-            </Route>
           </Routes>
+          <AuthProvider >
+            <Routes>
+              <Route element={<ProtectedRoute />}>
+                <Route element={<DashboardLayout />}>
+                  <Route path="/campuses" element={<CampusPage />} />
+                  <Route path="/campuses/:campusId/buildings" element={<BuildingPage />} />
+                  <Route path="/buildings/:buildingId/rooms" element={<RoomPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                </Route>
+              </Route>
+            </Routes>
+          </AuthProvider>
         </main>
       </div>
-    </AuthProvider>
     </BrowserRouter>
   );
 }

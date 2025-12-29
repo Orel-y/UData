@@ -60,8 +60,7 @@ export const getCurrentUser = async():Promise<AuthUser>=>{
 }
 
 export const registerUser = async(form:Omit<Omit<AuthUser,'status'>,'id'>)=>{
-  const { data } = await api.post(`/auth/register`,form);
-  console.log(data);
+  const { data } = await axios.post(`${API_BASE}/auth/register`,form);
   return data;
 }
 export const authenticate = async(form:any)=>{

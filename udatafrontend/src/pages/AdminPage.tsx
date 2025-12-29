@@ -1,6 +1,7 @@
 import {  useState } from 'react';
 import { useAuth } from '../auth/useAuth';
 import { registerUser } from '../api/api';
+import { AxiosError } from 'axios';
 
 export default function AdminPage() {
   const { currentUser } = useAuth();
@@ -33,21 +34,33 @@ export default function AdminPage() {
       </div>
     );
   }
-
+  const delay = async(s:number)=>{
+    await new Promise(res=>setTimeout(res,s*1000))
+  }
   const handleAddUser = async(e: React.FormEvent) => {
-    setMsg("");
-    console.log(form)
     e.preventDefault();
-    const u = await registerUser(form);
-    if(u){
-      setError(false);
-      setMsg("User Added Successfully");
-    }else{
-      setError(true);
-      setMsg("Error adding user");
+    setError(false)
+    setMsg("adding user..");
+    setForm({ full_name: "", email: '', password:"", username: '', role: "VIEWER" });
+    try {
+      const u = await registerUser(form);
+      if(u){
+        setError(false);
+        setMsg("User Added Successfully");
+      }else{
+        setError(true);
+        setMsg("Error adding user");
+      }      
+    } catch (error) {
+        const err = error as AxiosError
+        console.log(err)
+        setError(true);
+        setMsg(err.response?.data.detail || "Error adding user");
+    }finally{
+      await delay(3);
+      setMsg("");
     }
     // setUsers(prev => [...prev, u]);
-    setForm({ full_name: "", email: '', password:"", username: '', role: "VIEWER" });
   };
 
   // const buildingsForUser = (userId: number) => {

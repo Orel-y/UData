@@ -1,21 +1,16 @@
-import React, { createContext, useState, useEffect, SetStateAction } from "react";
-import { clearToken, saveToken } from "./authStore";
+import React, { createContext, useState, useEffect, Dispatch, SetStateAction } from "react";
+import { clearToken } from "./authStore";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import { AuthUser, getCurrentUser, registerUser } from "../api/api";
-
-// const API_Base = "https://udata1.onrender.com";
-const API_Base = "http://localhost:8000";
-
+import { AuthUser, getCurrentUser } from "../api/api";
 
 export interface AuthContextType {
   isAuthenticated: boolean;
   isInitializing: boolean;
   currentUser?: AuthUser | null;
-  login: (form: any) => Promise<boolean>;
   logout: () => void;
-  register: (form: any)=>void;
-  setCurrentUser: Dispath<SetStateAction<AuthUser | null>>
+  setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
+  setIsInitializing: Dispatch<SetStateAction<boolean>>;
+  setCurrentUser: Dispatch<SetStateAction<AuthUser | null>>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,29 +22,6 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
 
     const navigate = useNavigate();
 
-    const register = async (form: any)=>{
-            try {
-              const data = await registerUser(form);
-              return data;
-            } catch (error) {
-              console.log("Registration error",error)
-            }
-            return;
-        }
-    const login = async (form: any)=>{
-            try {
-              const token = response.data.access_token;
-                saveToken(token);
-                // setCurrentUser(await getCurrentUser());
-                setIsAuthenticated(true);
-                setIsInitializing(false);
-                navigate('/campuses');
-                return true;
-            } catch (error) {
-              console.log("Login error",error);
-              return false;
-            }
-    }
     const logout = ()=>{
         clearToken();
         setIsAuthenticated(false);
@@ -68,14 +40,13 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
             setIsInitializing(true);
             navigate('/');
           }
-          
         }
 
         initialize();
     }, [])
 
     return (
-        <AuthContext.Provider value={{isAuthenticated,isInitializing,currentUser,login,logout,register,setCurrentUser}}>
+        <AuthContext.Provider value={{isAuthenticated,isInitializing,currentUser,logout,setIsAuthenticated,setIsInitializing,setCurrentUser}}>
             {children}
         </AuthContext.Provider>
     )
