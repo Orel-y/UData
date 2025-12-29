@@ -14,7 +14,6 @@ import { Campus, Building, Room } from '../App';
 
 export interface DataContextValue {
   campuses: Campus[];
-  buildings: Building[];
   rooms: Room[];
   fetchCampuses: () => Promise<Campus[]>;
   fetchBuildingsWithRooms: (campusId?: string) => Promise<api.ApiBuilding[]>;
@@ -22,9 +21,6 @@ export interface DataContextValue {
   addCampus: (campus: Omit<Campus, 'id'>) => Promise<Campus>;
   updateCampus: (id: string, campus: Omit<Campus, 'id'>) => Promise<Campus>;
   deleteCampus: (id: string) => Promise<void>;
-  addBuilding: (building: Omit<Building, 'id'>) => Promise<Building>;
-  updateBuilding: (id: string, building: Omit<Building, 'id'>) => Promise<Building>;
-  deleteBuilding: (id: string) => Promise<void>;
   addRoom: (room: Omit<Room, 'id'>) => Promise<Room>;
   updateRoom: (id: string, room: Omit<Room, 'id'>) => Promise<Room>;
   deleteRoom: (id: string) => Promise<void>;
@@ -36,7 +32,6 @@ const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [campuses, setCampuses] = useState<Campus[]>([]);
-  const [buildings, setBuildings] = useState<Building[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
 
   const fetchCampuses = async () => {
@@ -82,27 +77,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRooms(prev => prev.filter(r => !removedBuildingIds.includes(r.building_id)));
   };
 
-  const addBuilding = async (building: Omit<Building, 'id'>) => {
-
-      const data = await api.addBuilding(building);
-      // preserve createdBy for frontend if set
-      setBuildings(prev => [...prev,data]);
-      return data;
-
-  };
-
-  const updateBuilding = async (id: string, building: Omit<Building, 'id'>) => {
-  
-      const updated = await api.updateBuilding(id, building);
-      setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
-      return updated;
-  };
-
-  const deleteBuilding = async (id: string) => {
-      await api.deleteBuilding(id);
-      setBuildings(prev => prev.filter(b => b.id !== id));
-      setRooms(prev => prev.filter(r => r.building_id !== id));
-  };
 
   const addRoom = async (room: Omit<Room, 'id'>) => {
     const data = await api.addRoom(room);
@@ -127,7 +101,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <DataContext.Provider
       value={{
         campuses,
-        buildings,
         rooms,
         fetchCampuses,
         fetchBuildingsWithRooms,
@@ -135,9 +108,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addCampus,
         updateCampus,
         deleteCampus,
-        addBuilding,
-        updateBuilding,
-        deleteBuilding,
         addRoom,
         updateRoom,
         deleteRoom,

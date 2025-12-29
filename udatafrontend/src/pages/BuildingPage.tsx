@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BuildingSection } from '../components/BuildingSection';
 import { Building, Campus } from '../App';
 import { useData } from '../context/DataContext';
-import { ApiBuilding } from '../api/api';
+import { addBuilding, ApiBuilding, deleteBuilding, updateBuilding } from '../api/api';
+import { AxiosError } from 'axios';
 
 
 export default function BuildingPage() {
@@ -11,44 +12,13 @@ export default function BuildingPage() {
   const campusId = params.campusId;
   const navigate = useNavigate();
 
-  const { campuses, fetchBuildingsWithRooms, addBuilding, updateBuilding, deleteBuilding, fetchCampuses, } = useData();
+  const { campuses, fetchBuildingsWithRooms, fetchCampuses, } = useData();
 
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
   const [campus, setCampus] = useState<Campus | null>(null);
-  // const [isSyncing, setIsSyncing] = useState(false);
-
-  // useEffect(() => {
-  //   const onOnlineForUI = async () => {
-  //     if (pendingBuildingOpsCount > 0) {
-  //       setIsSyncing(true);
-  //       try {
-  //         await syncPendingBuildings();
-  //       } catch (err) {
-  //         console.error('Auto sync failed (UI handler):', err);
-  //       } finally {
-  //         setIsSyncing(false);
-  //       }
-  //     }
-  //   };
-  //   window.addEventListener('online', onOnlineForUI);
-
-  //   // If already online on mount and we have pending ops, show syncing briefly
-  //   if (navigator.onLine && pendingBuildingOpsCount > 0) {
-  //     (async () => {
-  //       setIsSyncing(true);
-  //       try {
-  //         await syncPendingBuildings();
-  //       } catch (err) {
-  //         console.error('Initial auto sync (UI handler) failed', err);
-  //       } finally {
-  //         setIsSyncing(false);
-  //       }
-  //     })();
-  //   }
-
-  //   return () => window.removeEventListener('online', onOnlineForUI);
-  // }, [pendingBuildingOpsCount, syncPendingBuildings]);
+  const [error,setError] = useState(false);
+  const [msg,setMsg] = useState("");
 
   useEffect(() => {
     if (!campusId) return;
@@ -86,12 +56,25 @@ export default function BuildingPage() {
       .finally(() => setLoading(false));
   }, [campusId]);
 
+  const delay = async(s:number)=>{
+    await new Promise(res=>setTimeout(res,s*1000))
+  }
+
   const handleAdd = async (building: Omit<Building, 'id'>) => {
     try {
       const newBuilding = await addBuilding(building);
       setBuildings(prev => [...prev, newBuilding]);
-    } catch (err) {
-      console.error('Error adding building:', err);
+      setMsg("Building added");
+      setError(false);
+    } catch (error) {
+        console.error('Error adding building:', error);
+        const err = error as AxiosError;
+        setError(true);
+        setMsg(err.response?.data.detail || "Error adding new building")
+    }
+    finally{
+      await delay(3)
+      setMsg("")
     }
   };
 
@@ -99,8 +82,16 @@ export default function BuildingPage() {
     try {
       const updated = await updateBuilding(id, building);
       setBuildings(prev => prev.map(b => (b.id === id ? updated : b)));
-    } catch (err) {
-      console.error('Error updating building:', err);
+      setMsg("Building updated")
+      setError(false)
+    } catch (error) {
+      console.error('Error updating building:', error);
+        const err = error as AxiosError;
+        setError(true);
+        setMsg(err.response?.data.detail || "Error updating building check the building code")
+    }finally{
+      await delay(3)
+      setMsg("")
     }
   };
 
@@ -108,8 +99,16 @@ export default function BuildingPage() {
     try {
       await deleteBuilding(id);
       setBuildings(prev => prev.filter(b => b.id !== id));
-    } catch (err) {
-      console.error('Error deleting building:', err);
+      setMsg("Building deleted")
+      setError(false)
+    } catch (error) {
+      console.error('Error deleting building:', error);
+        const err = error as AxiosError;
+        setError(true);
+        setMsg(err.response?.data.detail || "Error deleting building")
+    }finally{
+      await delay(3)
+      setMsg("")
     }
   };
 
@@ -135,20 +134,6 @@ export default function BuildingPage() {
         <div className="w-full sm:flex-1">
           <h1 className="text-gray-900 text-2xl sm:text-3xl font-bold">{campus.name}</h1>
           <p className="text-gray-600 mt-1">Manage buildings under this campus</p>
-
-          {/* {(!navigator.onLine && pendingBuildingOpsCount > 0) && (
-            <div className="mt-3 inline-flex items-center gap-3 text-sm text-yellow-800 bg-yellow-50 px-3 py-2 rounded-md">
-              <span className="font-medium">{pendingBuildingOpsCount} pending changes</span>
-              <span className="text-sm text-gray-600"> Will sync when you reconnect</span>
-            </div>
-          )}
-
-          {isSyncing && (
-            <div className="mt-3 inline-flex items-center gap-2 text-sm text-gray-600">
-              <div className="h-4 w-4 border-2 border-gray-300 rounded-full animate-spin" />
-              <span>Syncing changes…</span>
-            </div>
-          )} */}
         </div>
         <div className="mt-4 sm:mt-0">
           <button
@@ -159,6 +144,8 @@ export default function BuildingPage() {
           </button>
         </div> 
       </div>
+
+        <div className={error==true?"text-center text-red":"text-center text-green"}>{msg}</div>
 
       {loading ? (
         <div className="text-center text-gray-500 py-8">Loading buildings...</div>

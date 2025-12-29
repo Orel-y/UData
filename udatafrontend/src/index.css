@@ -1280,6 +1280,9 @@ html {
 .bg-gray-700{
   background-color: hsl(0, 0%, 40%);
 }
+.bg-white{
+  transition: all 1s ease;
+}
 @media (max-width:840px) {
     .profile{
       position: absolute;

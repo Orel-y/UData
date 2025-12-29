@@ -26,7 +26,7 @@ export function BuildingSection({
   const [editingBuilding, setEditingBuilding] = useState<BuildingType | null>(null);
 
   const [formData, setFormData] = useState({
-    code:"B",
+    code:"",
     name: '',
     floors: 1,
     campus_id:campusId,
@@ -41,7 +41,7 @@ export function BuildingSection({
   const campus = campuses.find(c => c.id === campusId);
 
   const openAddModal = () => {
-    setFormData({code:"B", name: '', floors: 1, campus_id:campusId,status:BuildingStatus.ACTIVE,type:BType.ACADEMIC });
+    setFormData({code:"", name: '', floors: 1, campus_id:campusId,status:BuildingStatus.ACTIVE,type:BType.ACADEMIC });
     setEditingBuilding(null);
     setIsModalOpen(true);
   };
