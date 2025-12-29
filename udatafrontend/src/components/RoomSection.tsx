@@ -90,34 +90,26 @@ export function RoomSection({
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     setIsModalOpen(false);
-    if (editingRoom) {
-      try {
+    try {
+        if (editingRoom) {
           const updated = await onUpdate(editingRoom.id, formData);
           setRooms(prev => prev.map(r => (r.id === editingRoom.id ? updated : r)));
-          setError(false)
           setMsg("Room edition successful")
-      } catch (error) {
-        const err = error as AxiosError;
-        setError(true);
-        setMsg(err.response?.data.detail || `Error while editing room... check the room number`)
-      }finally{
-          await delay(3);
-          setMsg("")
-        }
-    } else {
-        try {
+        } else {
           const newroom = await onAdd(formData);
           setRooms(prev => [...prev,newroom,]);
-          setError(false)
           setMsg("Room added successfully")
-        } catch (error) {
-          const err = error as AxiosError;
-          setError(true);
-          setMsg(err.response?.data.detail || "Error while adding room... room number can't be doublicated")
-        }finally{
-          await delay(3);
-          setMsg("")
         }
+        setError(false)
+    }catch (error) {
+        const err = error as AxiosError;
+        setError(true);
+        (editingRoom?
+             setMsg(err.response?.data.detail || `Error while editing room... check the room number`)
+            : setMsg(err.response?.data.detail || "Error while adding room... room number can't be doublicated"))
+    }finally{
+        await delay(3);
+        setMsg("")
     }
   };
 
