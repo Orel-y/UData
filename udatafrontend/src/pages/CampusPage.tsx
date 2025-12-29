@@ -12,25 +12,14 @@ export default function CampusPage() {
 
   const isAdmin = currentUser?.role=="ADMIN";
      useEffect(()=>{
-      // making sure user is authenticated
-          const initialize = async()=>{
+        setIsAuthenticated(true);
+        setIsInitializing(false);
+        const initialize = async()=>{
             if(currentUser){
-              setIsAuthenticated(true);
-              setIsInitializing(false);
-              return;
-            }
-            try{
               setCurrentUser(await getCurrentUser());
-              setIsAuthenticated(true);
-              setIsInitializing(false);
-            }catch{
-              setIsAuthenticated(false);
-              setIsInitializing(true);
-              navigate('/');
             }
           }
-  
-          initialize();
+        initialize();
       }, [])
   useEffect(() => {
     // Ensure campuses are loaded
