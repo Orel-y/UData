@@ -1274,6 +1274,12 @@ html {
   color: green;
   padding-left: 10px;
 }
+.bg-gray-600{
+  background-color: hsl(0, 0%, 50%);
+}
+.bg-gray-700{
+  background-color: hsl(0, 0%, 40%);
+}
 @media (max-width:840px) {
     .profile{
       position: absolute;

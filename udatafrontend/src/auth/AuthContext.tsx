@@ -1,11 +1,11 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, SetStateAction } from "react";
 import { clearToken, saveToken } from "./authStore";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { AuthUser, getCurrentUser, registerUser } from "../api/api";
 
-const API_Base = "https://udata1.onrender.com";
-
+// const API_Base = "https://udata1.onrender.com";
+const API_Base = "http://localhost:8000";
 
 
 export interface AuthContextType {
@@ -15,6 +15,7 @@ export interface AuthContextType {
   login: (form: any) => Promise<boolean>;
   logout: () => void;
   register: (form: any)=>void;
+  setCurrentUser: Dispath<SetStateAction<AuthUser | null>>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,7 +38,6 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
         }
     const login = async (form: any)=>{
             try {
-              const response = await axios.post(`${API_Base}/auth/login`,form)
               const token = response.data.access_token;
                 saveToken(token);
                 // setCurrentUser(await getCurrentUser());
@@ -46,7 +46,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
                 navigate('/campuses');
                 return true;
             } catch (error) {
-              // console.log("Login error",error);
+              console.log("Login error",error);
               return false;
             }
     }
@@ -75,7 +75,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
     }, [])
 
     return (
-        <AuthContext.Provider value={{isAuthenticated,isInitializing,currentUser,login,logout,register}}>
+        <AuthContext.Provider value={{isAuthenticated,isInitializing,currentUser,login,logout,register,setCurrentUser}}>
             {children}
         </AuthContext.Provider>
     )

@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as api from '../api/api';
 import { Campus, Building, Room } from '../App';
-// lightweight op id generator (avoids adding a dependency)
 
 // Pending building operation stored when offline
 // type PendingBuildingOp = {
@@ -89,7 +88,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // preserve createdBy for frontend if set
       setBuildings(prev => [...prev,data]);
       return data;
-  
+
   };
 
   const updateBuilding = async (id: string, building: Omit<Building, 'id'>) => {

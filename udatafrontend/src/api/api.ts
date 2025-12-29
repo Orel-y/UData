@@ -5,7 +5,9 @@ import { getToken } from '../auth/authStore';
 
 const token = getToken();
 
-const API_BASE = 'https://udata1.onrender.com';
+// const API_BASE = 'https://udata1.onrender.com';
+const API_BASE = "http://localhost:8000";
+
 const api = axios.create({
   baseURL: API_BASE,
   headers: {
@@ -60,6 +62,10 @@ export const getCurrentUser = async():Promise<AuthUser>=>{
 export const registerUser = async(form:Omit<Omit<AuthUser,'status'>,'id'>)=>{
   const { data } = await api.post(`/auth/register`,form);
   console.log(data);
+  return data;
+}
+export const authenticate = async(form:any)=>{
+  const data = await axios.post(`${API_BASE}/auth/login`,form);
   return data;
 }
 

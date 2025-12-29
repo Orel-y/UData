@@ -1,12 +1,12 @@
 import {  useState } from 'react';
 import { useAuth } from '../auth/useAuth';
-import { useData } from '../context/DataContext';
 import { registerUser } from '../api/api';
 
 export default function AdminPage() {
   const { currentUser } = useAuth();
-  const { buildings } = useData() as any;
+  // const { buildings } = useData() as any;
   const [msg,setMsg] = useState("");
+  const [error,setError] = useState(false);
 
   // const [users, setUsers] = useState<AuthUser[]>([]);
   // const [selected, setSelected] = useState<AuthUser | null>(null);
@@ -40,8 +40,10 @@ export default function AdminPage() {
     e.preventDefault();
     const u = await registerUser(form);
     if(u){
+      setError(false);
       setMsg("User Added Successfully");
     }else{
+      setError(true);
       setMsg("Error adding user");
     }
     // setUsers(prev => [...prev, u]);
@@ -73,7 +75,7 @@ export default function AdminPage() {
               </li>
             ))}
           </ul> */}
-            {msg&&<div className='text-center text-gray-600'>{msg}</div>}
+            {msg&&<div className={(error ? 'text-center text-red':'text-center text-green')}>{msg}</div>}
           <form onSubmit={handleAddUser} className="mt-4 space-y-3">
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="Full name" value={form.full_name} onChange={e => setForm(s => ({...s, full_name: e.target.value}))} required />
             <input className="w-full px-3 py-2 border rounded my-2" placeholder="email" type='email' value={form.email} onChange={e => setForm(s => ({...s, email: e.target.value}))} required />
