@@ -118,6 +118,8 @@ export function BuildingSection({
             <tr className="border-b border-gray-200">
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Building Name</th>
               <th className="text-left py-3 px-4 text-gray-700 text-sm">Floor Count</th>
+              <th className="text-left py-3 px-4 text-gray-700 text-sm">Type</th>
+              <th className="text-left py-3 px-4 text-gray-700 text-sm">Status</th>
               <th className="text-right py-3 px-4 text-gray-700 text-sm">Actions</th>
             </tr>
           </thead>
@@ -137,6 +139,8 @@ export function BuildingSection({
                 >
                   <td className="py-3 px-4 text-blue-600 hover:underline">{building.name}</td>
                   <td className="py-3 px-4 text-gray-600">{building.floors}</td>
+                  <td className="py-3 px-4 text-gray-600">{building.type}</td>
+                  <td className="py-3 px-4 text-gray-600">{building.status}</td>
                   <td className="py-3 px-4">
                     <div className="flex items-center justify-end gap-2">
                       <button
