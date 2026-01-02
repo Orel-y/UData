@@ -546,6 +546,7 @@
 
   .flex-1 {
     flex: 1;
+    width: 100%;
   }
   .flex-col{
     flex-direction: column;
@@ -1287,14 +1288,14 @@ html {
     .profile{
       position: absolute;
       background-color: white;
-      right: 10px;
+      right: 2px;
       top: 10px;
     }
     .showProfile{
       display: block;
       position: absolute;
       top: 5px;
-      right: 5px;
+      right: 8px;
     }
     .closeProfile{
       display: block;
@@ -1306,15 +1307,17 @@ html {
     .py-4{
       padding: 0;
     }
+    div.bg-white.p-6{
+      padding: 5px 0;
+    }
     .bg-white.p-6{
       padding: 5px 5px;
     }
     .px-4{
       padding: 6px;
     }
-    main{
+    main.px-4{
       padding: 0;
-      flex-direction: column;
     }
     .login{
       margin-top: 14vh;

@@ -1,4 +1,4 @@
-import { Menu, X } from 'lucide-react';
+import { Menu, User, X } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
 import { useState } from 'react';
 import placeholder from '../assets/image.png' 
@@ -41,8 +41,8 @@ export default function ProfilePanel() {
         
         </> : 
         <div className="showProfile">
-            <Menu
-             size={34}
+            <User
+             size={30}
              onClick={()=>setShowProfile(true)}/>
         </div>)
       ) : (

@@ -28,22 +28,7 @@ export default function AuthProvider({children}:{children:React.ReactNode}) {
         navigate('/');
     }
 
-    // initialize auth state once on mount
-    useEffect(()=>{
-        const initialize = async()=>{
-          try{
-            setCurrentUser(await getCurrentUser());
-            setIsAuthenticated(true);
-            setIsInitializing(false);
-          }catch{
-            setIsAuthenticated(false);
-            setIsInitializing(true);
-            navigate('/');
-          }
-        }
-
-        initialize();
-    }, [])
+   
 
     return (
         <AuthContext.Provider value={{isAuthenticated,isInitializing,currentUser,logout,setIsAuthenticated,setIsInitializing,setCurrentUser}}>
