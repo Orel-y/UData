@@ -16,7 +16,7 @@ export default function ProtectedRoute() {
             setIsInitializing(false);
           }catch{
             setIsAuthenticated(false);
-            setIsInitializing(true);
+            setIsInitializing(false);
           }
         }
 
