@@ -34,6 +34,7 @@ class RoomType(str, Enum):
     OFFICE = "OFFICE"
     STORAGE = "STORAGE"
     AUDITORIUM = "AUDITORIUM"
+    DORM = "DORM"
     OTHER = "OTHER"
 
 class Role(str, Enum):
