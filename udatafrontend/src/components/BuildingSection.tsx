@@ -84,12 +84,12 @@ export function BuildingSection({
     <section className="bg-white">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+          <div className="svg w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
             <Building className="w-5 h-5 text-green-600" />
           </div>
           <div>
             <h2 className="text-gray-900">
-              {campus?.name} — Buildings
+              {campus?.name} 
             </h2>
             <p className="text-gray-600 text-sm">
               Manage buildings under this campus

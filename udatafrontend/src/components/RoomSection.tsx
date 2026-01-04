@@ -137,7 +137,7 @@ export function RoomSection({
     <section>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+          <div className="svg w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
             <DoorOpen className="w-5 h-5 text-purple-600" />
           </div>
           <div>

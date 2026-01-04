@@ -39,7 +39,7 @@ export default function LoginPage() {
             navigate('/campuses');
         } catch (error) {
             const er =  error as AxiosError
-            setMsg(er.response?.data?.detail)
+            setMsg(er.response?.data?.detail || "Check your internet connection")
             setError(1);
         }finally{
             setShowMsg(true);

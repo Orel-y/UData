@@ -1305,8 +1305,8 @@ html {
     .py-4{
       padding: 0;
     }
-    div.bg-white.p-6{
-      padding: 5px 0;
+    button{
+      font-size: x-small;
     }
     .bg-white.p-6{
       padding: 5px 5px;
@@ -1322,5 +1322,8 @@ html {
     }
     .login h3{
       font-size: 30px;
+    }
+    .svg{
+      display: none;
     }
 }
