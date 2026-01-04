@@ -27,7 +27,6 @@ connect_args = {}
 engine_kwargs = {}
 
 if DATABASE_URL.startswith("postgresql"):
-    connect_args = {"ssl": "require"}
     engine_kwargs = {
         "pool_pre_ping": True,
         "pool_size": 10,
