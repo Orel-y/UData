@@ -22,13 +22,13 @@ export default function BuildingPage() {
 
   useEffect(() => {
     if (!campusId) return;
-
+    setLoading(true)
     // ensure campuses loaded
     fetchCampuses().then(data => {
       const found = data.find(c => c.id == campusId);
       setCampus(found ?? null);
-      setLoading(false)
-    }).catch(err => console.error(err));
+    }).catch(err => console.error(err))
+    .finally(()=>{setLoading(false)})
   }, [campusId]);
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function BuildingPage() {
     }
   };
 
-  if (!campusId || !campus) {
+  if ((!campusId || !campus) && !loading) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-12">
         <p className="text-red-600 text-center">Campus not found.</p>
@@ -129,28 +129,11 @@ export default function BuildingPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="w-full sm:flex-1">
-          <h1 className="text-gray-900 text-2xl sm:text-3xl font-bold">{campus.name}</h1>
-          <p className="text-gray-600 mt-1">Manage buildings under this campus</p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <button
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
-          >
-            Back
-          </button>
-        </div> 
-      </div>
-
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-white shadow rounded-lg p-6 border border-gray-200 rounded-lg">
         <div className={error==true?"text-center text-red":"text-center text-green"}>{msg}</div>
-
       {loading ? (
         <div className="text-center text-gray-500 py-8">Loading buildings...</div>
       ) : (
-        <div className="bg-white shadow rounded-lg p-6">
           <BuildingSection
             campusId={campusId}
             buildings={buildings}
@@ -159,7 +142,6 @@ export default function BuildingPage() {
             onUpdate={handleUpdate}
             onDelete={handleDelete}
           />
-        </div>
       )} 
     </div>
   );

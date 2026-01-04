@@ -81,10 +81,7 @@ export function BuildingSection({
 
 
   return (
-    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div>
-        <h2 className='font-lm font-bold'><b>Campus:</b> {campus?.name}</h2><br/>
-      </div>
+    <section className="bg-white">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -92,21 +89,29 @@ export function BuildingSection({
           </div>
           <div>
             <h2 className="text-gray-900">
-              Buildings — {campus?.name}
+              {campus?.name} — Buildings
             </h2>
             <p className="text-gray-600 text-sm">
               Manage buildings under this campus
             </p>
           </div>
         </div>
-
-        <button
+        <div className="flex gap-3">
+           <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Back
+          </button>
+          <button
           onClick={openAddModal}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Building
         </button>
+        </div>
+        
       </div>
 
       <div className="overflow-x-auto">

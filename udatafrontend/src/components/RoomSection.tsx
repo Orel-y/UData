@@ -134,21 +134,26 @@ export function RoomSection({
   return (
     <>      
       <div className={error==true?"text-center text-red":"text-center text-green"}>{msg}</div>
-    <section className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <span><b>Campus: </b>{campus?.name}</span><br/>
-      <span><b>Building: </b>{building?.name}</span><br/><br/>
+    <section>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
             <DoorOpen className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <h2 className="text-gray-900">Rooms — {building?.name}</h2>
+            <h2 className="text-gray-900">{building?.name} — Rooms</h2>
             <p className="text-gray-600 text-sm">
               Manage rooms under this building
             </p>
           </div>
         </div>
+        <div className="flex gap-3">
+           <button
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        >
+          Back
+        </button>
         <button
           onClick={openAddModal}
           disabled={selectedBuildingId === undefined}
@@ -157,6 +162,8 @@ export function RoomSection({
           <Plus className="w-4 h-4" />
           Add Room
         </button>
+        </div>
+        
       </div>
 
       <div className="overflow-x-auto">

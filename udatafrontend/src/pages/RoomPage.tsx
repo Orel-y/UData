@@ -79,20 +79,7 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-gray-900 text-2xl font-bold">{building?.name}</h1>
-          <p className="text-gray-600">Manage rooms under this building</p>
-        </div>
-
-        <button
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-        >
-          Back
-        </button>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6 shadow-sm bg-white rounded-lg border border-gray-200 p-6">
 
       {loading ? (
         <div className="text-center text-gray-500 py-8">Loading rooms...</div>
