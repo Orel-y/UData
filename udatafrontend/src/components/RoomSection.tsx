@@ -265,6 +265,7 @@ export function RoomSection({
                 <option value={RoomType.LECTURE_HALL}>{RoomType.LECTURE_HALL}</option>
                 <option value={RoomType.OFFICE}>{RoomType.OFFICE}</option>
                 <option value={RoomType.STORAGE}>{RoomType.STORAGE}</option>
+                <option value={RoomType.DORM}>{RoomType.DORM}</option>
                 <option value={RoomType.OTHER}>{RoomType.OTHER}</option>
               </select>
           </div>

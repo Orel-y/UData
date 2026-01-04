@@ -3,18 +3,11 @@ import { Campus, Building, Room, BuildingStatus, BuildingType } from '../App';
 import { getToken } from '../auth/authStore';
 
 
-const token = getToken();
+var token = getToken();
 
 // const API_BASE = 'https://udata1.onrender.com';
 const API_BASE = "http://localhost:8000";
 
-const api = axios.create({
-  baseURL: API_BASE,
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}` 
-  }
-});
 
 export interface CreateBuildingDTO {
   name: string;
@@ -55,7 +48,13 @@ export enum Role{
 
 // user
 export const getCurrentUser = async():Promise<AuthUser>=>{
-  const { data } = await api.get(`/auth/me`);
+  token = getToken();
+  const { data } = await axios.get(`${API_BASE}/auth/me`,{
+      headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` 
+    }
+  });
   return data;
 }
 
@@ -67,6 +66,14 @@ export const authenticate = async(form:any)=>{
   const data = await axios.post(`${API_BASE}/auth/login`,form);
   return data;
 }
+
+const api = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}` 
+  }
+});
 
 // Campuses
 export const fetchCampuses = async (): Promise<Campus[]> => {

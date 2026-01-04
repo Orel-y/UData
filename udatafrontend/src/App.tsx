@@ -64,6 +64,7 @@ export enum RoomType{
     OFFICE = "OFFICE",
     STORAGE = "STORAGE",
     AUDITORIUM = "AUDITORIUM",
+    DORM = "DORM",
     OTHER = "OTHER"
 }
 export enum RoomStatus{
