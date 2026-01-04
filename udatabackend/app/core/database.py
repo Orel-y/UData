@@ -4,8 +4,6 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker
 )
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 import os
 
 from app.models.user import User
@@ -15,17 +13,34 @@ from app.models.room import Room
 
 from app.core.base import BaseModel
 
-load_dotenv()
+# Load .env only in non-production
+if os.getenv("ENV") != "production":
+    from dotenv import load_dotenv
+    load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# IMPORTANT: async driver
-# example:
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
+
+connect_args = {}
+engine_kwargs = {}
+
+if DATABASE_URL.startswith("postgresql"):
+    connect_args = {"ssl": "require"}
+    engine_kwargs = {
+        "pool_pre_ping": True,
+        "pool_size": 10,
+        "max_overflow": 10,
+    }
+
 # postgresql+asyncpg://user:pass@localhost/db
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
-    future=True
+    echo=False,
+    future=True,
+    connect_args=connect_args,
+    **engine_kwargs,
 )
 
 AsyncSessionLocal = async_sessionmaker(
