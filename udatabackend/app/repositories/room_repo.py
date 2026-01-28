@@ -22,12 +22,12 @@ class RoomRepository(BaseRepository[Room]):
         result = await self.session.execute(stmt)
         return result.scalars().unique().all()
 
-    async def exists_in_building(self, building_id: UUID, code: str) -> bool:
+    async def exists_in_building(self, building_id: UUID, room_no: str) -> bool:
         stmt = (
             select(Room.id)
             .where(
                 Room.building_id == building_id,
-                Room.code == code,
+                Room.room_no == room_no,
                 Room.deleted_at.is_(None)
             )
         )

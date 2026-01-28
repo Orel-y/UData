@@ -17,7 +17,13 @@ class CampusRepository(BaseRepository[Campus]):
         await self.session.refresh(campus)
         return campus
 
+    async def update(self, campus: Campus, data: dict):
+        for key, value in data.items():
+            setattr(campus, key, value)
+        await self.session.commit()
+        await self.session.refresh(campus)
 
+        return campus
 
     async def get_by_code(self, code: str) -> Optional[Campus]:
         result = await self.session.execute(

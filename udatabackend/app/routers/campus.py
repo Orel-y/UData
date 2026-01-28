@@ -48,7 +48,7 @@ async def update_campus(
         current_user: User = Depends(get_current_user)
     ):
     service = CampusService(session, current_user)
-    return await service.update_campus(campus_id, payload.dict(exclude_unset=True))
+    return await service.update_campus(campus_id, payload)
 
 
 @router.delete("/{campus_id}", response_model=CampusDeleteResponse)

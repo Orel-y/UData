@@ -29,10 +29,9 @@ class BuildingService:
 
     async def list_buildings_by_campus(self, campus_id: UUID):
         return await self.repo.list_buildings_by_campus(campus_id)
-
     async def create_building(self, payload: BuildingCreate) -> Building:
         # uniqueness check: (campus_id, code)
-        if await self.repo.exists_in_campus(payload.campus_id, payload.code):
+        if await self.repo.exists_in_campus(payload.campus_id, payload.building_no):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Building code already exists in this campus"
@@ -46,8 +45,8 @@ class BuildingService:
 
         building = Building(
             campus_id=payload.campus_id,
-            code=payload.code,
-            name=payload.name,
+            prefix=payload.prefix,
+            building_no=payload.building_no,
             floors=payload.floors,
             type=payload.type,
             status=payload.status,
