@@ -8,8 +8,8 @@ from app.models.enums import BuildingStatus, BuildingType
 
 
 class BuildingBase(BaseModel):
-    code: str
-    name: str
+    prefix: str
+    building_no: str
     floors: Optional[int] = None
     type: BuildingType = BuildingType.OTHER
     status: BuildingStatus = BuildingStatus.ACTIVE
@@ -20,8 +20,8 @@ class BuildingCreate(BuildingBase):
 
 
 class BuildingUpdate(BaseModel):
-    code: Optional[str] = None
-    name: Optional[str] = None
+    prefix: Optional[str] = None
+    building_no: Optional[str] = None
     floors: Optional[int] = None
     type: Optional[BuildingType] = None
     status: Optional[BuildingStatus] = None

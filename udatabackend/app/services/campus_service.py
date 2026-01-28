@@ -8,6 +8,8 @@ from typing import List
 from datetime import datetime
 from uuid import UUID
 
+from app.schemas.campus import CampusUpdate
+
 class CampusService:
     def __init__(self, session: AsyncSession, current_user: User):
         self.session = session
@@ -36,10 +38,14 @@ class CampusService:
             raise HTTPException(status_code=404, detail="Campus not found")
         return campus
 
-    async def update_campus(self, campus_id: UUID, data: dict) -> Campus:
+    async def update_campus(self, campus_id: UUID, payload: CampusUpdate) -> Campus:
         campus = await self.get_campus(campus_id)
-        data['updated_by_id'] = self.current_user.id
-        return await self.repo.update(campus, data)
+
+        update_data = payload.dict(exclude_unset=True)
+        update_data["updated_by_id"] = self.current_user.id
+
+        return await self.repo.update(campus, update_data)
+
 
     async def delete_campus(self, campus_id: UUID) -> Campus:
         campus = await self.get_campus(campus_id)

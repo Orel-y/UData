@@ -3,13 +3,12 @@ from datetime import datetime
 from typing import Optional, Dict
 
 from pydantic import BaseModel
-
 from app.models.enums import RoomStatus, RoomType
 
 
 class RoomBase(BaseModel):
-    code: str
-    name: Optional[str] = None
+    prefix: str
+    room_no: Optional[str] = None
     capacity: Optional[int] = None
     floor: Optional[int] = None
     type: RoomType = RoomType.OTHER
@@ -20,16 +19,14 @@ class RoomBase(BaseModel):
 class RoomCreate(RoomBase):
     building_id: UUID
 
-
 class RoomUpdate(BaseModel):
-    code: Optional[str] = None
-    name: Optional[str] = None
+    prefix: Optional[str] = None
+    room_no: Optional[str] = None
     capacity: Optional[int] = None
     floor: Optional[int] = None
     type: Optional[RoomType] = None
     status: Optional[RoomStatus] = None
     meta_info: Optional[Dict] = None
-
 
 class RoomResponse(RoomBase):
     id: UUID
@@ -40,7 +37,6 @@ class RoomResponse(RoomBase):
     class Config:
         orm_mode = True
         from_attributes = True
-
 
 class RoomDeleteResponse(RoomResponse):
     deleted_at: datetime

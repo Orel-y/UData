@@ -20,12 +20,12 @@ class BuildingRepository(BaseRepository[Building]):
         result = await self.session.execute(stmt)
         return result.scalars().unique().all()
 
-    async def exists_in_campus(self, campus_id, code: str) -> bool:
+    async def exists_in_campus(self, campus_id, building_no: str) -> bool:
         stmt = (
             select(Building.id)
             .where(
                 Building.campus_id == campus_id,
-                Building.code == code,
+                Building.building_no == building_no,
                 Building.deleted_at.is_(None)
             )
         )

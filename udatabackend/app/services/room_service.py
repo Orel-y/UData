@@ -39,7 +39,7 @@ class RoomService:
                 detail="Building not found"
             )
 
-        if await self.repo.exists_in_building(payload.building_id, payload.code):
+        if await self.repo.exists_in_building(payload.building_id, payload.room_no):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Room code already exists in this building"
@@ -53,13 +53,12 @@ class RoomService:
 
         room = Room(
             building_id=payload.building_id,
-            code=payload.code,
-            name=payload.name,
+            prefix=payload.prefix,
+            room_no=payload.room_no,
             capacity=payload.capacity,
             floor=payload.floor,
             type=payload.type,
             status=payload.status,
-            meta_info=payload.meta_info,
             created_by_id=self.current_user.id
         )
 
