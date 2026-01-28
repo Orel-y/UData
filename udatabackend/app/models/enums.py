@@ -22,7 +22,6 @@ class RoomStatus(str, Enum):
 
 class BuildingType(str, Enum):
     ACADEMIC = "ACADEMIC"
-    ADMIN = "ADMIN"
     DORM = "DORM"
     LIBRARY = "LIBRARY"
     LAB = "LAB"
@@ -33,7 +32,6 @@ class RoomType(str, Enum):
     LAB = "LAB"
     OFFICE = "OFFICE"
     STORAGE = "STORAGE"
-    AUDITORIUM = "AUDITORIUM"
     DORM = "DORM"
     OTHER = "OTHER"
 
