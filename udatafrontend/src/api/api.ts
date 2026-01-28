@@ -5,8 +5,8 @@ import { getToken } from '../auth/authStore';
 
 var token = getToken();
 
-const API_BASE = 'https://udata1.onrender.com';
-// const API_BASE = "http://localhost:8000";
+//const API_BASE = 'https://udata1.onrender.com';
+const API_BASE = "http://localhost:8000";
 
 
 export interface CreateBuildingDTO {
