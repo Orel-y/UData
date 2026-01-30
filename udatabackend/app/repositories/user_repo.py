@@ -36,4 +36,3 @@ class UserRepository(BaseRepository[User]):
         await self.session.refresh(new_user)
         return new_user
 
-

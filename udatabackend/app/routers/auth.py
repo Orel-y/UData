@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.functions import current_user
+from typing import List
+
 from app.auth.security import verify_password, create_access_token
 from app.core.database import get_session
 from app.repositories.user_repo import UserRepository
@@ -26,6 +29,7 @@ async def register_user(payload: RegisterRequest, db: AsyncSession = Depends(get
 
     )
 
+
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: LoginRequest, session: AsyncSession = Depends(get_session)):
     repo = UserRepository(session)
@@ -48,5 +52,12 @@ async def get_my_profile(
     return await service.get_profile(current_user.id)
 
 
+@router.get("/users", response_model=List[UserResponse])
+async def get_all_users(
+        session: AsyncSession = Depends(get_session),
+        current_user: User = Depends(get_current_user)):
 
+    repo = UserRepository(session)
+    service = UserService(repo)
+    return await service.list_users()
 

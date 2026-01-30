@@ -40,3 +40,7 @@ class UserService:
                 detail="User not found",
             )
         return user
+
+    async def list_users(self):
+        users = await self.user_repo.list_all()
+        return users
