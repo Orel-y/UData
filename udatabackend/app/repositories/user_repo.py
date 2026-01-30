@@ -36,3 +36,11 @@ class UserRepository(BaseRepository[User]):
         await self.session.refresh(new_user)
         return new_user
 
+    async def update(self, user: User, data: dict):
+        for key, value in data.items():
+            setattr(user, key, value)
+        await self.session.commit()
+        await self.session.refresh(user)
+
+        return user
+

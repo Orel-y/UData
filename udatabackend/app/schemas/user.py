@@ -11,8 +11,14 @@ class UserCreate(BaseSchema):
     role_names: list[str]  # client sends role names
 
 class UserUpdate(BaseSchema):
+    username: str
+    email: str
     full_name: str | None = None
     status: UserStatus | None = None
+    role: str
+
+    class Config:
+        orm_mode = True
 
 class UserResponse(BaseSchema):
     id: UUID

@@ -8,9 +8,11 @@ from app.core.database import get_session
 from app.repositories.user_repo import UserRepository
 from app.schemas.auth import LoginRequest, TokenResponse, RegisterRequest, RegisterResponse
 from app.services.user_service import UserService
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, UserUpdate
 from app.auth.dependencies import get_current_user
 from app.models.user import User
+from uuid import UUID
+
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -61,3 +63,18 @@ async def get_all_users(
     service = UserService(repo)
     return await service.list_users()
 
+@router.put("/user/{user_id}", response_model=UserResponse)
+async def update_user(
+        user_id: UUID,
+        payload: UserUpdate,
+        session: AsyncSession = Depends(get_session),
+        current_user: User = Depends(get_current_user),
+    ):
+
+    if current_user.role != "ADMIN":
+        raise HTTPException(status_code=403, detail="Only Admin can update user")
+
+    repo = UserRepository(session)
+    service = UserService(repo)
+
+    return await service.update_user(user_id, payload)
