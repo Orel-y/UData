@@ -78,3 +78,15 @@ async def update_user(
     service = UserService(repo)
 
     return await service.update_user(user_id, payload)
+
+@router.delete("/user/{user_id}")
+async def delete_user(
+        user_id: UUID,
+        session: AsyncSession = Depends(get_session),
+        current_user: User = Depends(get_current_user),
+    ):
+
+    repo = UserRepository(session)
+    service = UserService(repo)
+
+    return await service.delete_user(user_id)

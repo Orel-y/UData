@@ -52,6 +52,11 @@ class UserService:
     async def update_user(self, user_id: UUID, payload: UserUpdate) -> User:
         user = await self.user_repo.get_by_id(user_id)
 
-        update_data = payload.dict(exclude_unset=True)
+        update_data = payload.model_dump(exclude_unset=True)
 
         return await self.user_repo.update(user, update_data)
+
+    async def delete_user(self, user_id: UUID) -> User:
+        user = await self.user_repo.get_by_id(user_id)
+
+        return await self.user_repo.soft_delete(user)

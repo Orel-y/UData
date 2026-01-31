@@ -1,3 +1,5 @@
+from http.client import HTTPResponse
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
@@ -42,5 +44,12 @@ class UserRepository(BaseRepository[User]):
         await self.session.commit()
         await self.session.refresh(user)
 
+        return user
+
+    async def soft_delete(self, user: User) -> User:
+        from datetime import datetime
+        user.deleted_at = datetime.utcnow()
+        await self.session.commit()
+        await self.session.refresh(user)
         return user
 
